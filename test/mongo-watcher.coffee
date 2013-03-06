@@ -1,9 +1,9 @@
 should = require 'should'
 {Server, Db} = require 'mongodb'
 
-MongoWatcher = require '../'
+MongoWatch = require '../'
 
-describe 'Mongo Watcher', ->
+describe 'Mongo Watch', ->
 
   before (done) ->
     client = new Db 'test', new Server('localhost', 27017), {w: 1}
@@ -19,7 +19,7 @@ describe 'Mongo Watcher', ->
     @users.remove {}, ->
 
   it 'insert should emit an event', (done) ->
-    @watcher = new MongoWatcher
+    @watcher = new MongoWatch
     @watcher.watch 'test.users', (event) ->
 
       if event.op is 'i'
@@ -31,7 +31,7 @@ describe 'Mongo Watcher', ->
       should.not.exist err
 
   it 'pretty format should work', (done) ->
-    @watcher = new MongoWatcher {format: 'pretty'}
+    @watcher = new MongoWatch {format: 'pretty'}
     @watcher.watch 'test.users', (event) ->
 
       if event.operation is 'insert'
@@ -50,7 +50,7 @@ describe 'Mongo Watcher', ->
 
       # And I'm watching the users collection
       counter = 0
-      @watcher = new MongoWatcher {format: 'pretty'}
+      @watcher = new MongoWatch {format: 'pretty'}
       @watcher.watch 'test.users', (event) ->
 
         # I should get three update events
