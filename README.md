@@ -24,9 +24,9 @@ npm install mongo-watch
 Watching a collection is as easy as:
 
 ```coffee-script
-MongoWatcher = require 'mongo-watch'
+MongoWatch = require 'mongo-watch'
 
-watcher = new MongoWatcher {parser: 'pretty'}
+watcher = new MongoWatch {parser: 'pretty'}
 
 # watch the collection
 watcher.watch 'test.users', (event) ->
@@ -59,10 +59,10 @@ See the tests for more examples.
 If you pass the onDebug option with a function of your choice, it will be notified of major events in the listener lifecycle.  This is useful for troubleshooting if you're not receiving the notifications you expect.
 
 ```coffee
-watcher = new MongoWatcher {onDebug: console.log}
+watcher = new MongoWatch {onDebug: console.log}
 ```
 
-For reference, here is output taken from the test 'Mongo Watcher - insert should emit an event'.  You should expect an output similar to this, and if it's breaking down you should be able to see why from the last event that was fired.  Are you listening to the right collection?
+For reference, here is output taken from the test 'Mongo Watch - insert should emit an event'.  You should expect an output similar to this, and if it's breaking down you should be able to see why from the last event that was fired.  Are you listening to the right collection?
 
 ```bash
 Ready: false
