@@ -16,7 +16,7 @@ Happy event driven programming!  8-)
 ## Install
 
 ```bash
-npm install mongo-watcher
+npm install mongo-watch
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ npm install mongo-watcher
 Watching a collection is as easy as:
 
 ```coffee-script
-MongoWatcher = require 'mongo-watcher'
+MongoWatcher = require 'mongo-watch'
 
 watcher = new MongoWatcher {parser: 'pretty'}
 
@@ -51,6 +51,8 @@ client.open ->
 ## Options
 
 See the applyDefaults function in [lib/main.coffee](https://github.com/TorchlightSoftware/mongo-watch/blob/master/lib/main.coffee) for a list of options and their defaults.
+
+See the tests for more examples.
 
 ## Debugging
 
@@ -84,8 +86,6 @@ Emitting event: { channel: 'change:test.users',
      o: { email: 'graham@daventry.com', _id: 5136eb9d19bd55597e000001 } } }
 Removing listeners for: test.users
 ```
-
-See the tests for more examples.
 
 ## Credits
 
