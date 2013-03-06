@@ -1,0 +1,31 @@
+{
+  "name":"mongo-watch",
+  "description":"A mongo watcher.  This ties into the MongoDB replication oplog, and exposes all data modifications via an EventEmitter.",
+  "version":"0.0.1",
+  "homepage":"http://github.com/TorchlightSoftware/mongo-watcher",
+  "repository":"git://github.com/TorchlightSoftware/mongo-watcher.git",
+  "author":"Torchlight Software <info@torchlightsoftware.com> (http://torchlightsoftware.com)",
+  "main":"./index.js",
+
+  "dependencies":{
+    "coffee-script":"*",
+    "mongodb":"*",
+    "async":"*"
+  },
+  "devDependencies":{
+    "mocha":"*",
+    "should":"*"
+  },
+  "engines":{
+    "node":">= 0.8.4"
+  },
+  "licenses":[
+    {
+      "type":"MIT",
+      "url":"http://github.com/torchlightsoftware/mongo-watcher/raw/master/LICENSE"
+    }
+  ],
+  "scripts": {
+    "test":"mocha"
+  }
+}
