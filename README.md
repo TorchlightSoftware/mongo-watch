@@ -1,6 +1,8 @@
 # Mongo Watcher
 
-This watcher ties into the MongoDB replication log (local.oplog.rs) and notifies your watchers any time the data changes.  In order to use this you must:
+This watcher ties into the MongoDB replication log (local.oplog.rs) and notifies your watchers any time the data changes.
+
+In order to use this you must:
 
 1. Have access to the oplog.  This will not be available on shared DB hosting, as it would reveal everyone else's database transactions to you.
 2. Have replication enabled.  This can be done by starting mongod with the option '--replSet someArbitraryName'
