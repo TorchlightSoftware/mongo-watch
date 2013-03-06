@@ -50,7 +50,7 @@ client.open ->
 
 ## Options
 
-See the applyDefaults function in [lib/main.coffee](#) for a list of options and their defaults.
+See the applyDefaults function in [lib/main.coffee](https://github.com/TorchlightSoftware/mongo-watch/blob/master/lib/main.coffee) for a list of options and their defaults.
 
 ## Debugging
 
