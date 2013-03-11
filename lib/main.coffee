@@ -20,17 +20,17 @@ class MongoWatch
 
     @channel = new EventEmitter
     @channel.on 'error', @options.onError
-    @channel.on 'debug', @options.onDebug
     @channel.on 'connected', => @status = 'connected'
+    @debug = @options.onDebug
 
     connect @options, (err, @stream) =>
       @channel.emit 'error', err if err
-      @channel.emit 'debug', "Emiting 'connected'. Stream exists:", @stream?
+      @debug "Emiting 'connected'. Stream exists:", @stream?
       @channel.emit 'connected'
 
   ready: (done) ->
     isReady = @status is 'connected'
-    @channel.emit 'debug', 'Ready:', isReady
+    @debug 'Ready:', isReady
     if isReady
       return done()
 
@@ -46,27 +46,27 @@ class MongoWatch
 
         watcher = (data) =>
           relevant = (collection is 'all') or (data.ns is collection)
-          @channel.emit 'debug', 'Data changed:', {data: data, watching: collection, relevant: relevant}
+          @debug 'Data changed:', {data: data, watching: collection, relevant: relevant}
           return unless relevant
 
           channel = if collection then "change:#{collection}" else 'change'
           formatter = formats[@options.format] or formats['raw']
           event = formatter data
 
-          @channel.emit 'debug', 'Emitting event:', {channel: channel, event: event}
+          @debug 'Emitting event:', {channel: channel, event: event}
           @channel.emit collection, event
 
         # watch user model
-        @channel.emit 'debug', 'Adding emitter for:', {collection: collection}
+        @debug 'Adding emitter for:', {collection: collection}
         @stream.on 'data', watcher
 
         @watching[collection] = watcher
 
-      @channel.emit 'debug', 'Adding listener on:', {collection: collection}
+      @debug 'Adding listener on:', {collection: collection}
       @channel.on collection, notify
 
   stop: (collection) ->
-    @channel.emit 'debug', 'Removing listeners for:', collection
+    @debug 'Removing listeners for:', collection
     collection ||= 'all'
     @channel.removeAllListeners collection
     @stream.removeListener 'data', @watching[collection]
