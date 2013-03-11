@@ -1,25 +1,31 @@
 {Server, Db} = require 'mongodb'
 {getTimestamp} = require './util'
 
+existingStream = null
+
 module.exports = ({host, port}, done) ->
+  if existingStream
+    return done null, existingStream
 
-  client = new Db 'local', new Server(host, port, {native_parser: true}), {w: 0}
+  else
+    client = new Db 'local', new Server(host, port, {native_parser: true}), {w: 0}
 
-  client.open (err) ->
-    return done err if err
-
-    client.collection 'oplog.rs', (err, oplog) ->
+    client.open (err) ->
       return done err if err
 
-      connOpts =
-        tailable: true
-        awaitdata: true
-        oplogreplay: true # does this do anything?
-        numberOfRetries: -1
+      client.collection 'oplog.rs', (err, oplog) ->
+        return done err if err
 
-      currentTime = getTimestamp()
+        connOpts =
+          tailable: true
+          awaitdata: true
+          oplogreplay: true # does this do anything?
+          numberOfRetries: -1
 
-      cursor = oplog.find {ts: {$gte: currentTime}}, connOpts
-      stream = cursor.stream()
+        currentTime = getTimestamp()
 
-      done null, stream
+        cursor = oplog.find {ts: {$gte: currentTime}}, connOpts
+        stream = cursor.stream()
+        existingStream = stream
+
+        done null, stream
