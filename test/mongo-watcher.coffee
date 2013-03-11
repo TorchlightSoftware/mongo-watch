@@ -97,14 +97,13 @@ describe 'Mongo Watch', ->
       @watcher.watch 'test.users', (event) ->
         should.exist event.timestamp
         should.exist event.targetId
+        expected = {
+          operation: 'set'
+          path: '.'
+          data: {email: 'graham@daventry.com'}
+        }
         for op in event.oplist
-          expected = {
-            operation: 'set'
-            path: '.'
-            data: {email: 'graham@daventry.com'}
-          }
-          if isEqual op, expected
-            done()
+          done() if isEqual op, expected
 
       @users.insert {email: 'graham@daventry.com'}, (err, status) ->
         should.not.exist err
