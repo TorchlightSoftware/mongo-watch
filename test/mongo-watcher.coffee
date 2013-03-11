@@ -1,5 +1,8 @@
 should = require 'should'
 {Server, Db} = require 'mongodb'
+{isEqual} = require 'lodash'
+{inspect} = require 'util'
+logger = (args...) -> console.log args.map((a) -> if (typeof a) is 'string' then a else inspect a, null, 4)...
 
 MongoWatch = require '../'
 
@@ -14,9 +17,10 @@ describe 'Mongo Watch', ->
       client.collection 'users', (err, @users) =>
         done err
 
-  afterEach ->
+  afterEach (done) ->
     @watcher.stopAll() if @watcher
-    @users.remove {}, ->
+    delete @watcher
+    @users.remove {}, done
 
   it 'insert should emit an event', (done) ->
     @watcher = new MongoWatch
@@ -84,4 +88,45 @@ describe 'Mongo Watch', ->
 
         # And I update 1 existing document
         @users.update {}, data2, (err, status) ->
+          should.not.exist err
+
+  describe 'normal format', ->
+
+    it 'should process insert', (done) ->
+      @watcher = new MongoWatch {format: 'normal'}
+      @watcher.watch 'test.users', (event) ->
+        should.exist event.timestamp
+        should.exist event.targetId
+        for op in event.oplist
+          expected = {
+            operation: 'set'
+            path: '.'
+            data: {email: 'graham@daventry.com'}
+          }
+          if isEqual op, expected
+            done()
+
+      @users.insert {email: 'graham@daventry.com'}, (err, status) ->
+        should.not.exist err
+
+    it 'should process simple update', (done) ->
+      @users.insert {email: 'graham@daventry.com'}, (err, status) =>
+        should.not.exist err
+
+        @watcher = new MongoWatch {format: 'normal'}
+        @watcher.watch 'test.users', (event) ->
+          should.exist event.timestamp, 'expected timestamp'
+          should.exist event.targetId, 'expected targetId'
+          should.exist event.oplist, 'expected oplist'
+
+          for op in event.oplist
+            expected = {
+              operation: 'set'
+              path: '.'
+              data: {firstName: 'Graham'}
+            }
+            if isEqual op, expected
+              done()
+
+        @users.update {email: 'graham@daventry.com'}, {firstName: 'Graham'}, (err, status) ->
           should.not.exist err

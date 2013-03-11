@@ -18,5 +18,48 @@ module.exports =
     namespace: data.ns
     operationId: data.h.toString()
     targetId: data.o2?._id or data.o?._id
-    criteria: data.o2
+    criteria: data.o2 if data.o2
     data: data.o
+
+  # restructure all ops to look like updates
+  normal: (data) ->
+    switch data.op
+      when 'i'
+        oplist = [
+          operation: 'set'
+          path: '.'
+          data: data.o
+        ]
+
+      when 'u'
+
+        # if it's a simple update: {name: 'Bob'}
+        if (k for k of data.o when k[0] isnt '$').length > 0
+          oplist = [
+            operation: 'set'
+            path: '.'
+            data: data.o
+          ]
+
+        # or a complex one: {'$set': {name: 'Bob'}}
+        else
+          oplist = []
+          for op, args of data.o
+            operation = op.slice 1
+            for path, value of args
+              oplist.push {operation, path, data: value}
+
+      when 'd'
+        oplist = [
+          operation: 'unset'
+          path: '.'
+        ]
+
+    targetId = data.o2?._id or data.o?._id
+    delete data.o._id if data.o
+
+    timestamp: getDate data.ts
+    targetId: targetId
+    oplist: oplist
+    namespace: data.ns
+    operationId: data.h.toString()
