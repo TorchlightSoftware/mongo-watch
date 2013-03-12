@@ -6,6 +6,14 @@ logger = (args...) -> console.log args.map((a) -> if (typeof a) is 'string' then
 
 MongoWatch = require '../'
 
+expectOp = (event, expected, done) ->
+  for op in event.oplist
+    should.exist op.id
+    delete op.id
+    if isEqual op, expected
+      done()
+
+
 describe 'Mongo Watch', ->
 
   before (done) ->
@@ -96,14 +104,12 @@ describe 'Mongo Watch', ->
       @watcher = new MongoWatch {format: 'normal'}
       @watcher.watch 'test.users', (event) ->
         should.exist event.timestamp
-        should.exist event.targetId
         expected = {
           operation: 'set'
           path: '.'
           data: {email: 'graham@daventry.com'}
         }
-        for op in event.oplist
-          done() if isEqual op, expected
+        expectOp event, expected, done
 
       @users.insert {email: 'graham@daventry.com'}, (err, status) ->
         should.not.exist err
@@ -115,17 +121,14 @@ describe 'Mongo Watch', ->
         @watcher = new MongoWatch {format: 'normal'}
         @watcher.watch 'test.users', (event) ->
           should.exist event.timestamp, 'expected timestamp'
-          should.exist event.targetId, 'expected targetId'
           should.exist event.oplist, 'expected oplist'
+          expected = {
+            operation: 'set'
+            path: '.'
+            data: {firstName: 'Graham'}
+          }
+          expectOp event, expected, done
 
-          for op in event.oplist
-            expected = {
-              operation: 'set'
-              path: '.'
-              data: {firstName: 'Graham'}
-            }
-            if isEqual op, expected
-              done()
 
         @users.update {email: 'graham@daventry.com'}, {firstName: 'Graham'}, (err, status) ->
           should.not.exist err

@@ -23,10 +23,15 @@ module.exports =
 
   # restructure all ops to look like updates
   normal: (data) ->
+
+    targetId = data.o2?._id or data.o?._id
+    delete data.o._id if data.o
+
     switch data.op
       when 'i'
         oplist = [
           operation: 'set'
+          id: targetId
           path: '.'
           data: data.o
         ]
@@ -37,6 +42,7 @@ module.exports =
         if (k for k of data.o when k[0] isnt '$').length > 0
           oplist = [
             operation: 'set'
+            id: targetId
             path: '.'
             data: data.o
           ]
@@ -47,16 +53,18 @@ module.exports =
           for op, args of data.o
             operation = op.slice 1
             for path, value of args
-              oplist.push {operation, path, data: value}
+              oplist.push
+                operation: operation
+                id: targetId
+                path: path
+                data: value
 
       when 'd'
         oplist = [
           operation: 'unset'
+          id: targetId
           path: '.'
         ]
-
-    targetId = data.o2?._id or data.o?._id
-    delete data.o._id if data.o
 
     timestamp: getDate data.ts
     targetId: targetId
