@@ -67,7 +67,6 @@ module.exports =
         ]
 
     timestamp: getDate data.ts
-    targetId: targetId
     oplist: oplist
     namespace: data.ns
     operationId: data.h.toString()
