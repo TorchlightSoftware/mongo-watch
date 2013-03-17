@@ -24,7 +24,7 @@ module.exports =
   # restructure all ops to look like updates
   normal: (data) ->
 
-    targetId = data.o2?._id or data.o?._id
+    targetId = (data.o2?._id or data.o?._id).toString()
     delete data.o._id if data.o
 
     switch data.op

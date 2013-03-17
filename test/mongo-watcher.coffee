@@ -6,14 +6,6 @@ logger = (args...) -> console.log args.map((a) -> if (typeof a) is 'string' then
 
 MongoWatch = require '../'
 
-expectOp = (event, expected, done) ->
-  for op in event.oplist
-    should.exist op.id
-    delete op.id
-    if isEqual op, expected
-      done()
-
-
 describe 'Mongo Watch', ->
 
   before (done) ->
@@ -99,6 +91,13 @@ describe 'Mongo Watch', ->
           should.not.exist err
 
   describe 'normal format', ->
+
+    expectOp = (event, expected, done) ->
+      for op in event.oplist
+        (typeof op.id).should.eql 'string', 'Expected id to be a string.'
+        delete op.id
+        if isEqual op, expected
+          done()
 
     it 'should process insert', (done) ->
       @watcher = new MongoWatch {format: 'normal'}
