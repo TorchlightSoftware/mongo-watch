@@ -26,7 +26,7 @@ Watching a collection is as easy as:
 ```coffee-script
 MongoWatch = require 'mongo-watch'
 
-watcher = new MongoWatch {parser: 'pretty'}
+watcher = new MongoWatch {format: 'pretty'}
 
 # watch the collection
 watcher.watch 'test.users', (event) ->
