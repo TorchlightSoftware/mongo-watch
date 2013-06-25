@@ -2,7 +2,12 @@
 
 module.exports = util =
 
-  getType: (obj) -> Object.prototype.toString.call(obj).slice 8, -1
+  getType: (obj) ->
+    ptype = Object.prototype.toString.call(obj).slice 8, -1
+    if ptype is 'Object'
+      return obj.constructor.name.toString()
+    else
+      return ptype
 
   # converts from js Date to oplog Timestamp
   getTimestamp: (date) ->
@@ -15,7 +20,8 @@ module.exports = util =
     new Date timestamp.high_ * 1000
 
   walk: (data, fn) ->
-    switch util.getType(data)
+    dataType = util.getType(data)
+    switch dataType
       when 'Array'
         util.walk(d, fn) for d in data
       when 'Object'
@@ -25,3 +31,9 @@ module.exports = util =
         result
       else
         fn(data)
+
+  convertObjectID: (data) ->
+    if util.getType(data) is 'ObjectID'
+      return data.toString()
+    else
+      return data
