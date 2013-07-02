@@ -73,7 +73,6 @@ describe 'util', ->
         input: new ObjectID()
         expected: 'ObjectID'
     ]
-    console.log (new ObjectID).constructor.name.toString()
 
     for test in tests
       do (test) ->
