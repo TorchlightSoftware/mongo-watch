@@ -8,6 +8,7 @@
   "main":"./index.js",
 
   "dependencies":{
+    "ale":"*",
     "coffee-script":"*",
     "mongodb":"*",
     "async":"*"

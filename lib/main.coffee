@@ -1,32 +1,52 @@
 {EventEmitter} = require 'events'
 formats = require './formats'
-connect = require('./connect')
+connect = require './connect'
+getOplogStream = require './getOplogStream'
 
 applyDefaults = (options) ->
-  options ||= {}
-  options.port ||= 27017
-  options.host ||= 'localhost'
-  options.format ||= 'raw'
-  options.onError ||= (error) -> console.log 'Error - MongoWatch:', (error?.stack or error)
-  options.onDebug ||= ->
+  options or= {}
+  options.db or= 'local'
+  options.port or= 27017
+  options.host or= 'localhost'
+  options.format or= 'raw'
   options
 
-class MongoWatch
+class MongoWatch extends EventEmitter
   status: 'connecting'
-  watching: []
+  queries: []
 
   constructor: (options) ->
     @options = applyDefaults options
+    super # call EventEmitter constructor with no args
 
-    @channel = new EventEmitter
-    @channel.on 'error', @options.onError
-    @channel.on 'connected', => @status = 'connected'
-    @debug = @options.onDebug
+    @on 'connected', => @status = 'connected'
+    @debug = @emit.bind(@, 'debug')
+    @error = @emit.bind(@, 'error')
 
-    connect @options, (err, @stream) =>
-      @channel.emit 'error', err if err
-      @debug "Emiting 'connected'. Stream exists:", @stream?
-      @channel.emit 'connected'
+    connect @options, (err, @queryClient) =>
+      return @error 'Error connecting to database:', err if err
+
+      getOplogStream @options, (err, @stream, @oplogClient) =>
+        return @error 'Error establishing oplog watcher:', err if err
+        @debug "Connected! Stream exists:", @stream?
+        @emit 'connected'
+
+  query: ({collName, where, select}, receiver) ->
+    #return receiver "Collection is required." unless collection?
+    #where or= {}
+    #select or= {}
+
+    #@ready =>
+
+      #payload = new QueryPayload {@client, collName, where, select}  # stream.Readable (emit payload as 'set' event)
+      #deltas = new QueryDelta {collName, where, select}             # stream.Transform (filter with query)
+      #output = new WatchStream
+
+      #payload.pipe(output)
+      #@stream.pipe(deltas)
+      #deltas.pipe(output)
+
+      #receiver null, output
 
   ready: (done) ->
     isReady = @status is 'connected'
@@ -35,44 +55,16 @@ class MongoWatch
       return done()
 
     else
-      @channel.once 'connected', done
+      @once 'connected', done
 
-  watch: (collection, notify) ->
-    collection ||= 'all'
-    notify ||= console.log
-
-    @ready =>
-      unless @watching[collection]?
-
-        watcher = (data) =>
-          relevant = (collection is 'all') or (data.ns is collection)
-          @debug 'Data changed:', {data: data, watching: collection, relevant: relevant}
-          return unless relevant
-
-          channel = if collection then "change:#{collection}" else 'change'
-          formatter = formats[@options.format] or formats['raw']
-          event = formatter data
-
-          @debug 'Emitting event:', {channel: channel, event: event}
-          @channel.emit collection, event
-
-        # watch user model
-        @debug 'Adding emitter for:', {collection: collection}
-        @stream.on 'data', watcher
-
-        @watching[collection] = watcher
-
-      @debug 'Adding listener on:', {collection: collection}
-      @channel.on collection, notify
-
-  stop: (collection) ->
-    @debug 'Removing listeners for:', collection
-    collection ||= 'all'
-    @channel.removeAllListeners collection
-    @stream.removeListener 'data', @watching[collection]
-    delete @watching[collection]
-
-  stopAll: ->
-    @stop coll for coll of @watching
+  shutdown: ->
+    @oplogClient?.disconnect()
+    @queryClient?.disconnect()
+    @stream.end()
+    @removeAllListeners()
+    for query in @queries
+      query.end()
+    @queries = []
+    @status = 'stopped'
 
 module.exports = MongoWatch
