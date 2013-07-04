@@ -1,3 +1,4 @@
+{getTimestamp} = require './util'
 {Readable} = require 'stream'
 logger = require 'ale'
 
@@ -10,22 +11,20 @@ applyDefaults = (options) ->
   options
 
 formatPayload = (records, options) ->
-  {client, collection} = options
+  return [] unless records? and records.length > 0
+
+  {client, collName} = options
   #logger.yellow {client}
 
-  oplist = []
-  for record in records
-    oplist.push {
-      operation: 'set'
-      path: '.'
-      data: record
-    }
+  events = for record in records
+    t: 'p' # type: payload
+    ts: getTimestamp()
+    op: 'i'
+    ns: "#{client.databaseName}.#{collName}"
+    o: record
 
-  return {
-    #timestamp: getDate data.ts
-    oplist: oplist
-    #namespace: data.ns
-  }
+  events[events.length - 1].t = 'ep' # end payload
+  return events
 
 class QueryPayload extends Readable
   constructor: (options={}) ->
@@ -39,7 +38,8 @@ class QueryPayload extends Readable
         if err
           @emit 'error', err
         else
-          @push formatPayload results, @options
+          for event in formatPayload results, @options
+            @push event
 
   _read: (size) ->
     #logger.blue 'requested read'

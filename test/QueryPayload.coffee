@@ -5,21 +5,34 @@ MongoWatch = require '..'
 QueryPayload = require '../lib/QueryPayload'
 host = 'localhost'
 port = 27017
+db = 'test'
+
+aliceEmail = 'alice@daventry.com'
+grahamEmail = 'graham@daventry.com'
+
+testEvent = (event, email, end) ->
+  should.exist event
+  event.should.include {
+    t: if end then 'ep' else 'p'
+    op: 'i'
+    ns: 'test.users'
+  }
+  event.o.email.should.eql email
+  should.exist event.o._id
 
 describe 'Query Payload', ->
 
   collName = 'users'
 
   before ->
-    @watcher = new MongoWatch {host, port}
+    @watcher = new MongoWatch {host, port, db}
 
   beforeEach (done) ->
-    @watcher.on 'error', done
     @watcher.ready =>
       @watcher.queryClient.collection collName, (err, @users) =>
-        @users.insert {email: 'graham@daventry.com'}, (err, status) =>
+        @users.insert {email: grahamEmail}, (err, status) =>
           should.not.exist err
-          @users.insert {email: 'alice@daventry.com'}, (err, status) =>
+          @users.insert {email: aliceEmail}, (err, status) =>
             should.not.exist err
             done()
 
@@ -29,30 +42,31 @@ describe 'Query Payload', ->
   it 'should retrieve all users', (done) ->
     payload = new QueryPayload {client: @watcher.queryClient, collName}
 
-    payload.on 'data', (event) ->
-      should.exist event?.oplist
-      event.oplist.length.should.eql 2
-      done()
+    counter = 0
+    payload.once 'data', (event) ->
+      testEvent event, grahamEmail
+
+      payload.once 'data', (event) ->
+        testEvent event, aliceEmail, true
+
+        done()
 
   it 'should perform where filter', (done) ->
-    aliceEmail = 'alice@daventry.com'
     payload = new QueryPayload {client: @watcher.queryClient, collName, where: {email: aliceEmail}}
 
-    payload.on 'data', (event) ->
-      should.exist event?.oplist
-      event.oplist.length.should.eql 1
-      event.oplist[0].data.email.should.eql aliceEmail
+    payload.once 'data', (event) ->
+      testEvent event, aliceEmail, true
       done()
 
   it 'should perform select filter', (done) ->
     aliceEmail = 'alice@daventry.com'
     payload = new QueryPayload {client: @watcher.queryClient, collName, select: {email: 1, _id: 0}}
 
-    payload.on 'data', (event) ->
-      should.exist event?.oplist
-      event.oplist.length.should.eql 2
-      for op in event.oplist
-        keys = Object.keys(op.data)
-        keys.should.include 'email'
-        keys.should.not.include '_id'
-      done()
+    payload.once 'data', (event) ->
+      event.o.email.should.eql grahamEmail
+      should.not.exist event._id
+
+      payload.once 'data', (event) ->
+        event.o.email.should.eql aliceEmail
+        should.not.exist event._id
+        done()

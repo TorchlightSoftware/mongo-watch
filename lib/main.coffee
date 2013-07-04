@@ -38,9 +38,11 @@ class MongoWatch extends EventEmitter
 
     #@ready =>
 
-      #payload = new QueryPayload {@client, collName, where, select}  # stream.Readable (emit payload as 'set' event)
-      #deltas = new QueryDelta {collName, where, select}             # stream.Transform (filter with query)
-      #output = new WatchStream
+      #formatter = formats[@options.format]
+
+      #payload = new QueryPayload {@queryClient, collName, where, select}  # stream.Readable (emit payload as 'set' event)
+      #deltas = new QueryDelta {@stream, collName, where, select}          # stream.Transform (filter with query)
+      #output = new WatchStream {formatter}                                # stream.Transform (apply selected formatter)
 
       #payload.pipe(output)
       #@stream.pipe(deltas)
