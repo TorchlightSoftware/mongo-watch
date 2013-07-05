@@ -2,8 +2,8 @@
 connect = require './connect'
 logger = require 'ale'
 
-module.exports = ({host, port}, done) ->
-  connect {db: 'local', host, port}, (err, oplogClient) =>
+module.exports = ({host, port, dbOpts}, done) ->
+  connect {db: 'local', host, port, dbOpts}, (err, oplogClient) =>
     return @error 'Error connecting to database:', err if err
 
     oplogClient.collection 'oplog.rs', (err, oplog) ->
@@ -19,10 +19,13 @@ module.exports = ({host, port}, done) ->
       oplog.find({}, {ts: 1}).sort({ts: -1}).limit(1).toArray (err, data) ->
 
         # start listening at the last record if there is one, otherwise use the javascript time
-        currentTime = data?[0] or getTimestamp()
+        lastOplogTime = data?[0]?.ts
+        if lastOplogTime
+          timeQuery = {$gt: lastOplogTime}
+        else
+          timeQuery = {$gte: getTimestamp()}
 
-        cursor = oplog.find {ts: {$gte: currentTime}}, connOpts
+        cursor = oplog.find {ts: timeQuery}, connOpts
         stream = cursor.stream()
-        existingStream = stream
 
         done null, stream, oplogClient

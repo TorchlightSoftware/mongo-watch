@@ -6,6 +6,7 @@ getOplogStream = require './getOplogStream'
 applyDefaults = (options) ->
   options or= {}
   options.db or= 'local'
+  options.dbOpts or= {w: 1}
   options.port or= 27017
   options.host or= 'localhost'
   options.format or= 'raw'

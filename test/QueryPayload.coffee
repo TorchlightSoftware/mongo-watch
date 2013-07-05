@@ -7,8 +7,8 @@ host = 'localhost'
 port = 27017
 db = 'test'
 
-aliceEmail = 'alice@daventry.com'
 grahamEmail = 'graham@daventry.com'
+aliceEmail = 'alice@daventry.com'
 
 testEvent = (event, email, end) ->
   should.exist event
