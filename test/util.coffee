@@ -1,4 +1,4 @@
-{walk, getType, convertObjectID} = require '../lib/util'
+{walk, getType, convertObjectID, addTo} = require '../lib/util'
 {ObjectID} = require 'mongodb'
 
 describe 'util', ->
@@ -79,4 +79,30 @@ describe 'util', ->
         {description, input, expected} = test
         it description, ->
           result = getType input
+          result.should.eql expected
+
+  describe 'addTo', ->
+
+    tests = [
+        description: 'empty arr'
+        arr: []
+        item: 1
+        expected: [1]
+      ,
+        description: 'append to arr'
+        arr: [1]
+        item: 2
+        expected: [1, 2]
+      ,
+        description: 'append multiple'
+        arr: [1]
+        item: [2, 3]
+        expected: [1, 2, 3]
+    ]
+
+    for test in tests
+      do (test) ->
+        {description, arr, item, expected} = test
+        it description, ->
+          result = addTo arr, item
           result.should.eql expected

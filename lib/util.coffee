@@ -1,4 +1,5 @@
 {Timestamp} = require 'mongodb'
+_ = require 'lodash'
 
 module.exports = util =
 
@@ -37,3 +38,13 @@ module.exports = util =
       return data.toString()
     else
       return data
+
+  addUnique: (arr, item) ->
+    arr.push item unless _.contains arr, item
+
+  addTo: (arr, item_s) ->
+    if util.getType(item_s) is 'Array'
+      arr.push item_s...
+    else
+      arr.push item_s
+    arr
