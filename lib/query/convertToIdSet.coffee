@@ -24,7 +24,7 @@ extractIds = (results) ->
   _.map results, '_id'
 
 module.exports = (cache, query) ->
-  return {} unless getType(query) is 'Object'
+  return [] unless getType(query) is 'Object'
 
 
   walk = (op, terms) ->

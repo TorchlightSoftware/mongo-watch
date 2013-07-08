@@ -1,9 +1,9 @@
 should = require 'should'
-convertToIdQuery = require '../lib/query/convertToIdQuery'
+convertToIdSet = require '../lib/query/convertToIdSet'
 relcache = require 'relcache'
 logger = require 'ale'
 
-describe 'convertToIdQuery', ->
+describe 'convertToIdSet', ->
 
   # we assume that all indexed fields are densely populated:
   # they should have a definition even if the value is null or undefined
@@ -29,6 +29,10 @@ describe 'convertToIdQuery', ->
   relcache.set 'loginCount', 12, {_id: 19}
 
   tests = [
+      description: 'default empty set'
+      input: undefined
+      output: []
+    ,
       description: 'simple keys'
       input: {name: 'Ken'}
       output: [5]
@@ -65,5 +69,5 @@ describe 'convertToIdQuery', ->
     do (test) ->
       {description, input, output} = test
       it description, ->
-        result = convertToIdQuery relcache, input
+        result = convertToIdSet relcache, input
         result.should.eql output
