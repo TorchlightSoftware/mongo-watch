@@ -4,6 +4,9 @@ relcache = require 'relcache'
 logger = require 'ale'
 
 describe 'convertToIdQuery', ->
+
+  # we assume that all indexed fields are densely populated:
+  # they should have a definition even if the value is null or undefined
   relcache.set 'name', 'Alice',   {_id: 2}
   relcache.set 'name', 'Ken',     {_id: 5}
   relcache.set 'name', 'Bob',     {_id: 7}
