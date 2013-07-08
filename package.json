@@ -9,13 +9,15 @@
 
   "dependencies":{
     "ale":"*",
+    "mori":"*",
+    "lodash":"*",
+    "relcache":"*",
     "coffee-script":"*",
     "mongodb":"*",
     "async":"*"
   },
   "devDependencies":{
     "mocha":"*",
-    "lodash":"*",
     "should":"*"
   },
   "engines":{
