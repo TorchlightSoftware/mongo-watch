@@ -13,10 +13,10 @@
     "lodash":"*",
     "relcache":"*",
     "coffee-script":"*",
-    "mongodb":"*",
-    "async":"*"
+    "mongodb":"*"
   },
   "devDependencies":{
+    "qi":"*",
     "mocha":"*",
     "should":"*"
   },

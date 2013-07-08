@@ -1,5 +1,7 @@
 should = require 'should'
 logger = require 'ale'
+{convertObjectID} = require '../lib/util'
+{focus} = require 'qi'
 
 MongoWatch = require '..'
 QueryDelta = require '../lib/QueryDelta'
@@ -41,21 +43,26 @@ describe 'Query Delta', ->
       should.not.exist err
 
     delta.once 'data', (event) ->
-      #logger.grey 'event:'.yellow, event
       testEvent event, grahamEmail
 
       done()
 
   it 'should filter records', (done) ->
-    delta = new QueryDelta {stream: @watcher.stream, collName, where: {email: aliceEmail}}
-
-    @users.insert {email: grahamEmail}, (err, status) =>
+    cbGen = focus (err, records) =>
       should.not.exist err
-      @users.insert {email: aliceEmail}, (err, status) =>
+      # why in the world would it return an array from an insert operation?
+      [[graham], [alice]] = records
+      @aliceId = convertObjectID alice._id
+
+      delta = new QueryDelta {stream: @watcher.stream, collName, idSet: [@aliceId]}
+
+      delta.once 'data', (event) ->
+        done()
+
+      @users.update {email: grahamEmail}, {$set: {name: 'Graham'}}, (err, status) =>
         should.not.exist err
+        @users.update {email: aliceEmail}, {$set: {name: 'Alice'}}, (err, status) =>
+          should.not.exist err
 
-    delta.once 'data', (event) ->
-      #logger.grey 'event:'.yellow, event
-      testEvent event, aliceEmail
-
-      done()
+    @users.insert {email: grahamEmail}, cbGen()
+    @users.insert {email: aliceEmail}, cbGen()

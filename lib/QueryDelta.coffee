@@ -1,13 +1,13 @@
-#deltas = new QueryDelta {collName, where, select}             # stream.Transform (filter with query)
+#deltas = new QueryDelta {collName, idSet, select}             # stream.Transform (filter with query)
 {Transform} = require 'stream'
-logger = require 'ale'
+{walk, convertObjectID, getType} = require './util'
 
 applyDefaults = (options) ->
   for required in ['stream', 'collName']
     throw new Error "#{required} required!" unless options[required]?
 
   options.select or= {}
-  options.where or= {}
+  options.idSet or= []
   options
 
 class QueryDelta extends Transform
@@ -18,12 +18,12 @@ class QueryDelta extends Transform
     @options.stream.pipe @
 
   _transform: (event, encoding, done) ->
-    #logger.grey 'transform event:'.magenta, event
+    event = walk event, convertObjectID # fuck ObjectIDs
 
     event.t = 'd'
-    if Object.keys(@options.where).length > 0
-      #logger.blue {event, where: @options.where}
-      if event.o.email is @options.where.email
+    event._id = event.o2?._id or event.o?._id
+    if @options.idSet.length > 0
+      if event._id in @options.idSet
         @push event
     else
       @push event
