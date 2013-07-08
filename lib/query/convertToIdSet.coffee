@@ -2,7 +2,6 @@ logger = require 'ale'
 {getType, addTo} = require '../util'
 _ = require 'lodash'
 mori = require 'mori'
-setToArray = require './setToArray'
 
 # combine a set of results using a given operator
 # optional reverse operator for negated sets
