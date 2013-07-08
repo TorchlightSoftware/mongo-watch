@@ -34,7 +34,8 @@ describe 'convertToIdQuery', ->
       description: 'negation'
       input: {name: {$ne: 'Ken'}}
       output:
-        nin: [5]
+        in: [2, 7, 9, 13, 19]
+        #nin: [5]
     ,
       description: 'nested keys'
       input: {$or: {name: 'Ken', country: 'Canada'}}
