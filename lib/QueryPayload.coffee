@@ -10,6 +10,12 @@ applyDefaults = (options) ->
   options.where or= {}
   options
 
+idSetToQuery = (idSet) ->
+  if idSet? and idSet.length > 0
+    {_id: {$in: idSet}}
+  else
+    {}
+
 formatPayload = (records, options) ->
   return [] unless records? and records.length > 0
 
@@ -31,10 +37,12 @@ class QueryPayload extends Readable
     @options = applyDefaults options
     super {objectMode: true}
 
+    @query = idSetToQuery @options.idSet
+
     @options.client.collection @options.collName, (err, collection) =>
       return @emit 'error', err if err
 
-      collection.find(@options.where, @options.select).toArray (err, results) =>
+      collection.find(@query, @options.select).toArray (err, results) =>
         if err
           @emit 'error', err
         else

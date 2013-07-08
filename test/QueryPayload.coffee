@@ -30,9 +30,11 @@ describe 'Query Payload', ->
   beforeEach (done) ->
     @watcher.ready =>
       @watcher.queryClient.collection collName, (err, @users) =>
-        @users.insert {email: grahamEmail}, (err, status) =>
+        @users.insert {email: grahamEmail}, (err, graham) =>
           should.not.exist err
-          @users.insert {email: aliceEmail}, (err, status) =>
+          @grahamId = graham[0]._id
+          @users.insert {email: aliceEmail}, (err, alice) =>
+            @aliceId = alice[0]._id
             should.not.exist err
             done()
 
@@ -52,7 +54,7 @@ describe 'Query Payload', ->
         done()
 
   it 'should perform where filter', (done) ->
-    payload = new QueryPayload {client: @watcher.queryClient, collName, where: {email: aliceEmail}}
+    payload = new QueryPayload {client: @watcher.queryClient, collName, idSet: [@aliceId]}
 
     payload.once 'data', (event) ->
       testEvent event, aliceEmail, true
