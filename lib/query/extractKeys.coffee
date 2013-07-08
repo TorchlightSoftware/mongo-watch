@@ -1,17 +1,17 @@
-{getType, addUnique} = require '../util'
-logger = require 'ale'
+{getType} = require '../util'
+mori = require 'mori'
 
 module.exports = (query) ->
   return [] unless getType(query) is 'Object'
 
-  keys = []
+  keys = mori.set []
 
   walk = (obj) ->
     for k, v of obj
       if k.match /^\$/ # recurse if it's a mongo op
         walk v
       else
-        addUnique keys, k
+        keys = mori.conj keys, k
 
   walk query
-  return keys
+  return mori.into_array keys
