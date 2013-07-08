@@ -28,41 +28,34 @@ describe 'convertToIdQuery', ->
   tests = [
       description: 'simple keys'
       input: {name: 'Ken'}
-      output:
-        in: [5]
+      output: [5]
     ,
       description: 'negation'
       input: {name: {$ne: 'Ken'}}
-      output:
-        in: [2, 7, 9, 13, 19]
+      output: [2, 7, 9, 13, 19]
         #nin: [5]
     ,
       description: 'nested keys'
       input: {$or: {name: 'Ken', country: 'Canada'}}
-      output:
-        in: [7, 9, 5]
+      output: [7, 9, 5]
     ,
       description: 'comparison operator'
       input: {loginCount: {$gte: 10}}
-      output:
-        in: [7, 19, 13]
+      output: [7, 19, 13]
     ,
       description: "'and' reduced to empty set"
       input: {$and: {name: 'Ken', loginCount: {$gte: 10}}}
       #output: and: [{in: [5]}, {in: 7, 19, 13}]
       #output: and: in: []
-      output:
-        in: []
+      output: []
     ,
       description: "root 'and' behavior"
       input: {$and: {name: 'Ken', loginCount: {$gte: 9}}}
-      output:
-        in: [5]
+      output: [5]
     ,
       description: 'remove exception'
       input: {$and: {loginCount: {$gte: 9}, name: {$ne: 'Ken'}}}
-      output:
-        in: [7, 19, 13]
+      output: [7, 19, 13]
   ]
 
   for test in tests

@@ -6,13 +6,19 @@ setToArray = require './setToArray'
 
 # combine a set of results using a given operator
 # optional reverse operator for negated sets
-combine = (results, op, op2) ->
-  op2 ?= op
+#combine = (results, op, op2) ->
+  #op2 ?= op
+  #_.reduce results, (l, r) ->
+    #result = {}
+    #result.in = op l.in, r.in if l.in or r.in
+    #result.nin = op2 l.nin, r.nin if l.nin or r.nin
+    #return result
+
+combine = (results, op) ->
+  # only pass first two arguments, otherwise mori tries to interpret
+  # index as a set
   _.reduce results, (l, r) ->
-    result = {}
-    result.in = op l.in, r.in if l.in or r.in
-    result.nin = op2 l.nin, r.nin if l.nin or r.nin
-    return result
+    op l, r
 
 extractIds = (results) ->
   _.map results, '_id'
@@ -23,7 +29,7 @@ module.exports = (cache, query) ->
 
   walk = (op, terms) ->
 
-    idQuery = {}
+    idSet = null
 
     if op.match /^\$/
 
@@ -33,12 +39,12 @@ module.exports = (cache, query) ->
 
       switch op
         when '$and'
-          idQuery = combine sub, mori.intersection, mori.union
+          idSet = combine sub, mori.intersection
 
         when '$or'
-          idQuery = combine sub, mori.union, mori.intersection
+          idSet = combine sub, mori.union
 
-      logger.cyan {op, combined: idQuery}
+      #logger.cyan {op, combined: idSet}
 
     else
 
@@ -46,29 +52,32 @@ module.exports = (cache, query) ->
       # http://docs.mongodb.org/manual/reference/operator/#comparison
       if getType(terms) is 'Object'
 
-        for k, v of terms
+        sub = for k, v of terms
           if k.match /^\$/
             comparitor = k.substring 1
 
             # cache supports all comparison operators listed at url above
             results = cache.query op, comparitor, v
-            logger.yellow "#{op} $#{comparitor} #{v}:", results
-            idQuery.in = mori.set extractIds results
+            mori.set extractIds results
 
           else
             # maybe we're comparing a real object value?
+            undefined
+
+        sub = _.compact sub # discard those undefined's!
+        idSet = combine sub, mori.intersection
 
       # otherwise it's a regular equality query
       else
         results = cache.get op, terms
-        idQuery.in = mori.set extractIds results
+        idSet = mori.set extractIds results
 
-      logger.magenta {original: idQuery}
+      #logger.magenta {original: idSet}
 
-    return idQuery
+    return idSet
 
   # default behavior for the root is an '$and' so evaluate this explicitly
   result = walk '$and', query
-  logger.magenta {result}
+  #logger.magenta {result}
 
-  return setToArray result
+  return mori.into_array result
