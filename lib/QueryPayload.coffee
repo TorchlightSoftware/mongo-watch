@@ -1,4 +1,4 @@
-{getTimestamp} = require './util'
+{getTimestamp, walk, convertObjectID} = require './util'
 {Readable} = require 'stream'
 logger = require 'ale'
 
@@ -27,8 +27,10 @@ formatPayload = (records, options) ->
     ts: getTimestamp()
     op: 'i'
     ns: "#{client.databaseName}.#{collName}"
+    _id: record._id
     o: record
 
+  events = walk events, convertObjectID
   events[events.length - 1].t = 'ep' # end payload
   return events
 
