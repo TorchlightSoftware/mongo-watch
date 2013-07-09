@@ -47,7 +47,7 @@ module.exports = util =
       arr.push item_s
     arr
 
-  listenNTimes: (emitter, event, n, done) ->
+  sample: (emitter, event, n, done) ->
     done ?= ->
 
     results = []

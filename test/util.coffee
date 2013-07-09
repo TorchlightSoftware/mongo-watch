@@ -1,5 +1,5 @@
 should = require 'should'
-{walk, getType, convertObjectID, addTo, listenNTimes} = require '../lib/util'
+{walk, getType, convertObjectID, addTo, sample} = require '../lib/util'
 {ObjectID} = require 'mongodb'
 {EventEmitter} = require 'events'
 
@@ -109,11 +109,11 @@ describe 'util', ->
           result = addTo arr, item
           result.should.eql expected
 
-  describe 'listenNTimes', ->
+  describe 'sample', ->
     it 'should only call twice', (done) ->
       ee = new EventEmitter
 
-      listenNTimes ee, 'test', 2, (err, results) ->
+      sample ee, 'test', 2, (err, results) ->
         should.not.exist err
         should.exist results
         results.length.should.eql 2
