@@ -10,7 +10,6 @@ applyDefaults = (options) ->
     options.idSet = options.idSet.map(stringToObjectID)
 
   options.select or= {}
-  options.where or= {}
   options
 
 idSetToQuery = (idSet) ->
