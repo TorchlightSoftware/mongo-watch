@@ -1,6 +1,7 @@
 {Timestamp} = require 'mongodb'
 _ = require 'lodash'
 logger = require 'ale'
+{ObjectID} = require 'mongodb'
 
 module.exports = util =
 
@@ -34,9 +35,15 @@ module.exports = util =
       else
         fn(data)
 
-  convertObjectID: (data) ->
+  objectIDToString: (data) ->
     if util.getType(data) is 'ObjectID'
       return data.toString()
+    else
+      return data
+
+  stringToObjectID: (data) ->
+    if util.getType(data) is 'String' and data.match /^[a-f0-9]{24}$/
+      return new ObjectID(data)
     else
       return data
 

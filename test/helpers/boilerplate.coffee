@@ -1,6 +1,6 @@
 should = require 'should'
 logger = require 'ale'
-{convertObjectID, sample} = require '../../lib/util'
+{sample} = require '../../lib/util'
 {focus} = require 'qi'
 
 MongoWatch = require '../..'

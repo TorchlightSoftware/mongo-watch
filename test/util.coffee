@@ -1,5 +1,5 @@
 should = require 'should'
-{walk, getType, convertObjectID, addTo, sample} = require '../lib/util'
+{walk, getType, objectIDToString, stringToObjectID, addTo, sample} = require '../lib/util'
 {ObjectID} = require 'mongodb'
 {EventEmitter} = require 'events'
 
@@ -34,7 +34,12 @@ describe 'util', ->
         description: 'should replace ObjectID with string'
         input: {a: 1, b: [1, 2, {_id: objID}]}
         expected: {a: 1, b: [1, 2, {_id: objID.toString()}]}
-        fn: convertObjectID
+        fn: objectIDToString
+      ,
+        description: 'should replace string with ObjectID'
+        input: {a: 1, b: [1, 2, {_id: objID.toString()}]}
+        expected: {a: 1, b: [1, 2, {_id: objID}]}
+        fn: stringToObjectID
     ]
 
     for test in tests

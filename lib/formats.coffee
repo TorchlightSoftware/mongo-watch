@@ -1,4 +1,4 @@
-{getDate, walk, convertObjectID} = require './util'
+{getDate, walk, objectIDToString} = require './util'
 
 mapOp =
   n: 'noop'
@@ -15,7 +15,7 @@ module.exports =
   pretty: (data) ->
 
     # convert ObjectIDs to strings
-    data = walk data, convertObjectID
+    data = walk data, objectIDToString
 
     timestamp: getDate data.ts
     operation: mapOp[data.op] or data.op
@@ -29,7 +29,7 @@ module.exports =
   normal: (data) ->
 
     # convert ObjectIDs to strings
-    data = walk data, convertObjectID
+    data = walk data, objectIDToString
 
     targetId = (data.o2?._id or data.o?._id)
     delete data.o._id if data.o

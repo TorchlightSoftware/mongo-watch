@@ -1,6 +1,6 @@
 #deltas = new QueryDelta {collName, idSet, select}             # stream.Transform (filter with query)
 {Transform} = require 'stream'
-{walk, convertObjectID, getType} = require './util'
+{walk, objectIDToString, getType} = require './util'
 
 applyDefaults = (options) ->
   for required in ['stream', 'collName']
@@ -18,7 +18,7 @@ class QueryDelta extends Transform
     @options.stream.pipe @
 
   _transform: (event, encoding, done) ->
-    event = walk event, convertObjectID # fuck ObjectIDs
+    event = walk event, objectIDToString # fuck ObjectIDs
 
     event.t = 'd'
     event._id = event.o2?._id or event.o?._id

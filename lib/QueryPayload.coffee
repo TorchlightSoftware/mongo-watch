@@ -1,4 +1,4 @@
-{getTimestamp, walk, convertObjectID} = require './util'
+{getTimestamp, walk, objectIDToString} = require './util'
 {Readable} = require 'stream'
 logger = require 'ale'
 
@@ -30,7 +30,7 @@ formatPayload = (records, options) ->
     _id: record._id
     o: record
 
-  events = walk events, convertObjectID
+  events = walk events, objectIDToString
   events[events.length - 1].t = 'ep' # end payload
   return events
 
@@ -39,12 +39,14 @@ class QueryPayload extends Readable
     @options = applyDefaults options
     super {objectMode: true}
 
+    #TODO: idSet needs to be converted to ObjectIDs!
     @query = idSetToQuery @options.idSet
 
     @options.client.collection @options.collName, (err, collection) =>
       return @emit 'error', err if err
 
       collection.find(@query, @options.select).toArray (err, results) =>
+        logger.cyan {results, @query}
         if err
           @emit 'error', err
         else
