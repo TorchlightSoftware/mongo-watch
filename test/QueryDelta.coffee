@@ -1,8 +1,6 @@
 should = require 'should'
 logger = require 'ale'
-{focus} = require 'qi'
 
-{convertObjectID, listenNTimes} = require '../lib/util'
 QueryDelta = require '../lib/QueryDelta'
 
 testEvent = (event, name) ->

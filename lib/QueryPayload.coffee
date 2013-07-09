@@ -1,10 +1,13 @@
-{getTimestamp, walk, objectIDToString} = require './util'
+{getTimestamp, walk, objectIDToString, stringToObjectID, getType} = require './util'
 {Readable} = require 'stream'
 logger = require 'ale'
 
 applyDefaults = (options) ->
   for required in ['client', 'collName']
     throw new Error "#{required} required!" unless options[required]?
+
+  if getType(options.idSet) is 'Array'
+    options.idSet = options.idSet.map(stringToObjectID)
 
   options.select or= {}
   options.where or= {}
@@ -46,7 +49,6 @@ class QueryPayload extends Readable
       return @emit 'error', err if err
 
       collection.find(@query, @options.select).toArray (err, results) =>
-        logger.cyan {results, @query}
         if err
           @emit 'error', err
         else
