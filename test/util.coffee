@@ -109,7 +109,7 @@ describe 'util', ->
           result.should.eql expected
 
   describe 'listenNTimes', ->
-    it 'should only call twice', ->
+    it 'should only call twice', (done) ->
       ee = new EventEmitter
 
       counter = 1
@@ -121,3 +121,4 @@ describe 'util', ->
       ee.emit 'test', 1
       ee.emit 'test', 2
       ee.emit 'test', 3
+      done()
