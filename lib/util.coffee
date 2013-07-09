@@ -45,3 +45,11 @@ module.exports = util =
     else
       arr.push item_s
     arr
+
+  listenNTimes: (emitter, event, n, callback) ->
+
+    placeCb = ->
+      if n-- > 0
+        emitter.once event, (args...) ->
+          callback args...
+          placeCb

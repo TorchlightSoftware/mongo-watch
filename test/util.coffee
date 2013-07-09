@@ -1,5 +1,6 @@
-{walk, getType, convertObjectID, addTo} = require '../lib/util'
+{walk, getType, convertObjectID, addTo, listenNTimes} = require '../lib/util'
 {ObjectID} = require 'mongodb'
+{EventEmitter} = require 'events'
 
 describe 'util', ->
 
@@ -106,3 +107,17 @@ describe 'util', ->
         it description, ->
           result = addTo arr, item
           result.should.eql expected
+
+  describe 'listenNTimes', ->
+    it 'should only call twice', ->
+      ee = new EventEmitter
+
+      counter = 1
+      listenNTimes ee, 'test', 2, (n) ->
+        counter.should.eql n
+        counter.should.not.eql 3
+        counter++
+
+      ee.emit 'test', 1
+      ee.emit 'test', 2
+      ee.emit 'test', 3
