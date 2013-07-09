@@ -1,68 +1,42 @@
 should = require 'should'
 logger = require 'ale'
-{convertObjectID} = require '../lib/util'
 {focus} = require 'qi'
 
-MongoWatch = require '..'
+{convertObjectID, listenNTimes} = require '../lib/util'
 QueryDelta = require '../lib/QueryDelta'
-host = 'localhost'
-port = 27017
-db = 'test'
-dbOpts = {w: 1, journal: true}
 
-grahamEmail = 'graham@daventry.com'
-aliceEmail = 'alice@daventry.com'
-
-testEvent = (event, email) ->
+testEvent = (event, name) ->
   should.exist event
   event.should.include {
     t: 'd' # type: delta
-    op: 'i'
+    op: 'u'
     ns: 'test.users'
   }
-  event.o.email.should.eql email
-  should.exist event.o._id
+  should.exist event?.o?.$set?.name, 'expected name'
+  event.o.$set.name.should.eql name
+  should.exist event._id, 'expected _id'
 
-describe 'Query Delta', ->
-
-  collName = 'users'
-
-  before (done) ->
-    @watcher = new MongoWatch {host, port, db, dbOpts}
-    @watcher.ready =>
-      @watcher.queryClient.collection collName, (err, @users) =>
-        done()
-
-  afterEach (done) ->
-    @users.remove {}, done
+boiler 'Query Delta', ->
 
   it 'should receive delta event', (done) ->
-    delta = new QueryDelta {stream: @watcher.stream, collName}
+    delta = new QueryDelta {stream: @watcher.stream, @collName}
 
-    @users.insert {email: grahamEmail}, (err, status) =>
+    @users.update {email: @grahamEmail}, {$set: {name: 'Graham'}}, (err, status) =>
       should.not.exist err
 
-    delta.once 'data', (event) ->
-      testEvent event, grahamEmail
+    delta.once 'data', (event) =>
+      testEvent event, 'Graham'
 
       done()
 
   it 'should filter records', (done) ->
-    cbGen = focus (err, records) =>
+    delta = new QueryDelta {stream: @watcher.stream, @collName, idSet: [@aliceId]}
+
+    delta.once 'data', (event) =>
+      testEvent event, 'Alice'
+      done()
+
+    @users.update {email: @grahamEmail}, {$set: {name: 'Graham'}}, (err, status) =>
       should.not.exist err
-      # why in the world would it return an array from an insert operation?
-      [[graham], [alice]] = records
-      @aliceId = convertObjectID alice._id
-
-      delta = new QueryDelta {stream: @watcher.stream, collName, idSet: [@aliceId]}
-
-      delta.once 'data', (event) ->
-        done()
-
-      @users.update {email: grahamEmail}, {$set: {name: 'Graham'}}, (err, status) =>
+      @users.update {email: @aliceEmail}, {$set: {name: 'Alice'}}, (err, status) =>
         should.not.exist err
-        @users.update {email: aliceEmail}, {$set: {name: 'Alice'}}, (err, status) =>
-          should.not.exist err
-
-    @users.insert {email: grahamEmail}, cbGen()
-    @users.insert {email: aliceEmail}, cbGen()

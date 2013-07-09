@@ -1,4 +1,6 @@
 --compilers coffee:coffee-script
+-r coffee-script
 -r should
+-r test/helpers/boilerplate.coffee
 -R spec
 --ui bdd
