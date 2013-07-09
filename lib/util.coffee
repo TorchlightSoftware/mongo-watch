@@ -1,5 +1,6 @@
 {Timestamp} = require 'mongodb'
 _ = require 'lodash'
+logger = require 'ale'
 
 module.exports = util =
 
@@ -47,11 +48,14 @@ module.exports = util =
     arr
 
   listenNTimes: (emitter, event, n, callback, done) ->
+    done ?= ->
 
     placeCb = ->
       if n-- > 0
         emitter.once event, (args...) ->
           callback args...
-          placeCb
+          placeCb()
       else
         done()
+
+    placeCb()

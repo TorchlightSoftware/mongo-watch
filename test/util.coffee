@@ -113,12 +113,13 @@ describe 'util', ->
       ee = new EventEmitter
 
       counter = 1
-      listenNTimes ee, 'test', 2, (n) ->
+      test = (n) ->
         counter.should.eql n
         counter.should.not.eql 3
         counter++
 
+      listenNTimes ee, 'test', 2, test, done
+
       ee.emit 'test', 1
       ee.emit 'test', 2
       ee.emit 'test', 3
-      done()
