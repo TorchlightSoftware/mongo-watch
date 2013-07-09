@@ -47,15 +47,16 @@ module.exports = util =
       arr.push item_s
     arr
 
-  listenNTimes: (emitter, event, n, callback, done) ->
+  listenNTimes: (emitter, event, n, done) ->
     done ?= ->
 
+    results = []
     placeCb = ->
       if n-- > 0
         emitter.once event, (args...) ->
-          callback args...
+          results.push args
           placeCb()
       else
-        done()
+        done null, results
 
     placeCb()
