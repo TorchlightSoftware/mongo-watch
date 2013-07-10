@@ -1,5 +1,5 @@
 should = require 'should'
-{walk, getType, objectIDToString, stringToObjectID, addTo, sample} = require '../lib/util'
+{walk, getType, objectIDToString, stringToObjectID, addTo, sample, lMissing, rMissing} = require '../lib/util'
 {ObjectID} = require 'mongodb'
 {EventEmitter} = require 'events'
 
@@ -127,3 +127,55 @@ describe 'util', ->
       ee.emit 'test', 1
       ee.emit 'test', 2
       ee.emit 'test', 3
+
+  describe 'lMissing', ->
+
+    tests = [
+        description: 'empty arr'
+        target: []
+        test: []
+        expected: []
+      ,
+        description: 'right subset'
+        target: [1, 2]
+        test: [1]
+        expected: [2]
+      ,
+        description: 'left subset'
+        target: [1]
+        test: [1, 2]
+        expected: []
+    ]
+
+    for t in tests
+      do (t) ->
+        {description, target, test, expected} = t
+        it description, ->
+          result = lMissing target, test
+          result.should.eql expected
+
+  describe 'rMissing', ->
+
+    tests = [
+        description: 'empty arr'
+        test: []
+        target: []
+        expected: []
+      ,
+        description: 'left subset'
+        test: [1]
+        target: [1, 2]
+        expected: []
+      ,
+        description: 'right subset'
+        test: [1, 2]
+        target: [1]
+        expected: [2]
+    ]
+
+    for t in tests
+      do (t) ->
+        {description, test, target, expected} = t
+        it description, ->
+          result = rMissing test, target
+          result.should.eql expected
