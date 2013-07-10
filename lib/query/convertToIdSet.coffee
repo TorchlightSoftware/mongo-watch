@@ -1,7 +1,6 @@
 logger = require 'ale'
 {getType, addTo} = require '../util'
 _ = require 'lodash'
-mori = require 'mori'
 
 # combine a set of results using a given operator
 # optional reverse operator for negated sets
@@ -14,7 +13,7 @@ mori = require 'mori'
     #return result
 
 combine = (results, op) ->
-  # only pass first two arguments, otherwise mori tries to interpret
+  # only pass first two arguments, otherwise lodash tries to interpret
   # index as a set
   _.reduce results, (l, r) ->
     op l, r
@@ -38,10 +37,10 @@ module.exports = (cache, query) ->
 
       switch op
         when '$and'
-          idSet = combine sub, mori.intersection
+          idSet = combine sub, _.intersection
 
         when '$or'
-          idSet = combine sub, mori.union
+          idSet = combine sub, _.union
 
       #logger.cyan {op, combined: idSet}
 
@@ -57,19 +56,19 @@ module.exports = (cache, query) ->
 
             # cache supports all comparison operators listed at url above
             results = cache.query op, comparitor, v
-            mori.set extractIds results
+            extractIds results
 
           else
             # maybe we're comparing a real object value?
             undefined
 
         sub = _.compact sub # discard those undefined's!
-        idSet = combine sub, mori.intersection
+        idSet = combine sub, _.intersection
 
       # otherwise it's a regular equality query
       else
         results = cache.get op, terms
-        idSet = mori.set extractIds results
+        idSet = extractIds results
 
       #logger.magenta {original: idSet}
 
@@ -79,4 +78,4 @@ module.exports = (cache, query) ->
   result = walk '$and', query
   #logger.magenta {result}
 
-  return mori.into_array result
+  return result
