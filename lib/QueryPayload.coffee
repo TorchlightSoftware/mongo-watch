@@ -6,15 +6,13 @@ applyDefaults = (options) ->
   for required in ['client', 'collName']
     throw new Error "#{required} required!" unless options[required]?
 
-  if getType(options.idSet) is 'Array'
-    options.idSet = options.idSet.map(stringToObjectID)
-
-  options.select or= {}
+  options.idSet ?= []
+  options.select ?= {}
   options
 
 idSetToQuery = (idSet) ->
   if idSet? and idSet.length > 0
-    {_id: {$in: idSet}}
+    {_id: {$in: idSet.map(stringToObjectID)}}
   else
     {}
 
