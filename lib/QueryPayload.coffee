@@ -1,6 +1,7 @@
-{getTimestamp, walk, objectIDToString, stringToObjectID, getType} = require './util'
+{stringToObjectID} = require './util'
 {Readable} = require 'stream'
 logger = require 'ale'
+formatPayload = require './events/formatPayload'
 
 applyDefaults = (options) ->
   for required in ['client', 'collName']
@@ -15,24 +16,6 @@ idSetToQuery = (idSet) ->
     {_id: {$in: idSet.map(stringToObjectID)}}
   else
     {}
-
-formatPayload = (records, options) ->
-  return [] unless records? and records.length > 0
-
-  {client, collName} = options
-  #logger.yellow {client}
-
-  events = for record in records
-    t: 'p' # type: payload
-    ts: getTimestamp()
-    op: 'i'
-    ns: "#{client.databaseName}.#{collName}"
-    _id: record._id
-    o: record
-
-  events = walk events, objectIDToString
-  events[events.length - 1].t = 'ep' # end payload
-  return events
 
 class QueryPayload extends Readable
   constructor: (options={}) ->
