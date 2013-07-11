@@ -8,15 +8,14 @@
   "main":"./index.js",
 
   "dependencies":{
+    "coffee-script":"*",
     "ale":"*",
-    "mori":"*",
+    "qi":"*",
     "lodash":"*",
     "relcache":"*",
-    "coffee-script":"*",
     "mongodb":"*"
   },
   "devDependencies":{
-    "qi":"*",
     "mocha":"*",
     "should":"*"
   },
