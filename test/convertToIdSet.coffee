@@ -44,7 +44,7 @@ describe 'convertToIdSet', ->
     ,
       description: 'nested keys'
       input: {$or: {name: 'Ken', country: 'Canada'}}
-      output: [7, 9, 5]
+      output: [5, 7, 9]
     ,
       description: 'comparison operator'
       input: {loginCount: {$gte: 10}}
