@@ -49,10 +49,10 @@ module.exports = util =
 
   lMissing: (target, test) ->
     return [] unless util.getType(target) is 'Array' and util.getType(test) is 'Array'
-    _.filter target, (t) -> t not in test
+    _.filter test, (t) -> t not in target
 
   rMissing: (test, target) ->
-    util.lMissing test, target
+    util.lMissing target, test
 
   addTo: (arr, item_s) ->
     if util.getType(item_s) is 'Array'

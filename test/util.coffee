@@ -139,12 +139,12 @@ describe 'util', ->
         description: 'right subset'
         target: [1, 2]
         test: [1]
-        expected: [2]
+        expected: []
       ,
         description: 'left subset'
         target: [1]
         test: [1, 2]
-        expected: []
+        expected: [2]
     ]
 
     for t in tests
