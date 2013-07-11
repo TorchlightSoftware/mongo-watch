@@ -38,8 +38,26 @@ global.boiler = (description, tests) ->
       sample @watcher.stream, 'data', 2, cbGen()
 
 
+    # an attempt to make sure deletion events don't affect the next test
     afterEach (done) ->
+      expecting = null
+      got = 0
+
+      check = =>
+        if expecting? and got >= expecting
+          expecting = null
+          @watcher.stream.removeListener 'data', watch
+          done()
+
+      watch = (event) ->
+        if event.op is 'd'
+          got++
+          check()
+
+      @watcher.stream.on 'data', watch
+
       @users.remove {}, (err, numRemoved) =>
-      sample @watcher.stream, 'data', 2, done
+        expecting = numRemoved
+        check()
 
     tests()
