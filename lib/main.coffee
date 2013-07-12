@@ -1,7 +1,13 @@
 {EventEmitter} = require 'events'
+relcache = require 'relcache'
+
 formats = require './formats'
 connect = require './connect'
 getOplogStream = require './getOplogStream'
+
+extractKeys = require './query/extractKeys'
+importKeys = require './cache/importKeys'
+QueryStream = require './QueryStream'
 
 applyDefaults = (options) ->
   options or= {}
@@ -32,24 +38,13 @@ class MongoWatch extends EventEmitter
         @debug "Connected! Stream exists:", @stream?
         @emit 'connected'
 
-  query: ({collName, where, select}, receiver) ->
-    #return receiver "Collection is required." unless collection?
-    #where or= {}
-    #select or= {}
+  query: ({collName, idSet, select}, receiver) ->
+    return receiver "collName is required." unless collName?
+    {format} = @options
 
-    #@ready =>
-
-      #formatter = formats[@options.format]
-
-      #payload = new QueryPayload {@queryClient, collName, where, select}  # stream.Readable (emit payload as 'set' event)
-      #deltas = new QueryDelta {@stream, collName, where, select}          # stream.Transform (filter with query)
-      #output = new WatchStream {formatter}                                # stream.Transform (apply selected formatter)
-
-      #payload.pipe(output)
-      #@stream.pipe(deltas)
-      #deltas.pipe(output)
-
-      #receiver null, output
+    @ready =>
+      output = new QueryStream {@stream, client: @queryClient, collName, idSet, format}
+      receiver null, output
 
   ready: (done) ->
     isReady = @status is 'connected'
