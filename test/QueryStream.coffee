@@ -87,3 +87,58 @@ boiler 'Query Stream', ->
         event._id.should.eql @aliceId
 
         done()
+
+  #it 'should extend selection', (done) ->
+
+    #stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName, idSet: [@aliceId]}
+
+    #stream.once 'data', (event) =>
+
+      #should.exist event._id, 'expected id in first record'
+      #event._id.should.eql @aliceId
+      #event.t.should.eql 'ep'
+      #event.op.should.eql 'i'
+
+      #stream.update {newIdSet: [@aliceId, @grahamId]}, ->
+
+      #stream.once 'data', (event) =>
+
+        #should.exist event?._id, 'expected id in first record'
+        #event.t.should.eql 'ep'
+        #event.op.should.eql 'i'
+        #event._id.should.eql @grahamId
+
+        #done()
+
+  #it 'should contract selection', (done) ->
+
+  it 'should apply a format', (done) ->
+
+    stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName, format: 'normal'}
+
+    sample stream, 'data', 2, (err, dataset) =>
+      should.not.exist err
+
+      [[graham], [alice]] = dataset
+      if graham._id is @aliceId
+        [graham, alice] = [alice, graham]
+
+      graham.should.include {
+        operation: 'set'
+        path: '.'
+        data: {email: @grahamEmail}
+        namespace: 'test.users'
+      }
+      graham._id.should.eql @grahamId
+
+      alice.should.include {
+        operation: 'set'
+        path: '.'
+        data: {email: @aliceEmail}
+        namespace: 'test.users'
+      }
+      alice._id.should.eql @grahamId
+
+      done()
+
+  #it 'formatter should split multi-set events', (done) ->

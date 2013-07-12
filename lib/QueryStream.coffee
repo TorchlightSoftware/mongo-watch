@@ -84,6 +84,13 @@ class QueryStream extends Transform
 
   _transform: (event, encoding, done) ->
     #logger.grey 'transforming:'.cyan, event
-    done null, @formatter event
+
+    result = @formatter(event)
+    if getType(result) is 'Array'
+      @push r for r in result
+    else
+      @push result
+
+    done()
 
 module.exports = QueryStream

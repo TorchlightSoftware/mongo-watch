@@ -1,4 +1,5 @@
 {getDate, walk, objectIDToString} = require './util'
+_ = require 'lodash'
 
 mapOp =
   n: 'noop'
@@ -6,6 +7,8 @@ mapOp =
   u: 'update'
   r: 'remove'
 
+# formats can return an Object or an Array
+# if it's an array, the elements should be sent as separate events
 module.exports =
 
   # raw data from the oplog
@@ -38,7 +41,7 @@ module.exports =
       when 'i'
         oplist = [
           operation: 'set'
-          id: targetId
+          _id: targetId
           path: '.'
           data: data.o
         ]
@@ -49,7 +52,7 @@ module.exports =
         if (k for k of data.o when k[0] isnt '$').length > 0
           oplist = [
             operation: 'set'
-            id: targetId
+            _id: targetId
             path: '.'
             data: data.o
           ]
@@ -62,18 +65,23 @@ module.exports =
             for path, value of args
               oplist.push
                 operation: operation
-                id: targetId
+                _id: targetId
                 path: path
                 data: value
 
       when 'd'
         oplist = [
           operation: 'unset'
-          id: targetId
+          _id: targetId
           path: '.'
         ]
 
-    timestamp: getDate data.ts
-    oplist: oplist
-    namespace: data.ns
-    operationId: data.h
+    ops = for op in oplist
+      base =
+        timestamp: getDate data.ts
+        namespace: data.ns
+        operationId: data.h
+
+      _.merge op, base
+
+    return ops
