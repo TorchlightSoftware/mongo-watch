@@ -22,13 +22,13 @@ boiler 'Query Stream', ->
       if graham._id is @aliceId
         [graham, alice] = [alice, graham]
 
-      graham.o.email.should.eql @grahamEmail,
+      graham.o.email.should.eql @grahamEmail
 
-      alice.o.email.should.eql @aliceEmail,
+      alice.o.email.should.eql @aliceEmail
 
       gUpdate.t.should.eql 'd'
       gUpdate.op.should.eql 'u'
-      gUpdate.o.$set.name.should.eql 'Graham',
+      gUpdate.o.$set.name.should.eql 'Graham'
 
       done()
 
