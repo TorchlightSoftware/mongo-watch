@@ -137,7 +137,7 @@ boiler 'Query Stream', ->
         data: {email: @aliceEmail}
         namespace: 'test.users'
       }
-      alice._id.should.eql @grahamId
+      alice._id.should.eql @aliceId
 
       done()
 
