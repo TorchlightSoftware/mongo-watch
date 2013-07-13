@@ -1,4 +1,5 @@
 should = require 'should'
+{sample} = require '../lib/util'
 
 QueryPayload = require '../lib/QueryPayload'
 
@@ -34,14 +35,14 @@ boiler 'Query Payload', ->
       done()
 
   it 'should perform select filter', (done) ->
-    aliceEmail = 'alice@daventry.com'
-    payload = new QueryPayload {client: @watcher.queryClient, @collName, select: {email: 1, _id: 0}}
+    payload = new QueryPayload {client: @watcher.queryClient, @collName, select: {_id: 1}}
 
-    payload.once 'data', (event) =>
-      event.o.email.should.eql @grahamEmail
-      should.not.exist event._id, 'expected no event._id'
+    sample payload, 'data', 2, (err, dataset) =>
+      [[graham], [alice]] = dataset
 
-      payload.once 'data', (event) =>
-        event.o.email.should.eql @aliceEmail
-        should.not.exist event._id, 'expected no event._id'
-        done()
+      should.exist graham.o._id
+      should.not.exist graham.o.email
+
+      should.exist alice.o._id
+      should.not.exist alice.o.email
+      done()

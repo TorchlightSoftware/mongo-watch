@@ -88,29 +88,81 @@ boiler 'Query Stream', ->
 
         done()
 
-  #it 'should extend selection', (done) ->
+  it 'should perform selection', (done) ->
+    stream = new QueryStream {
+      client: @watcher.queryClient
+      stream: @watcher.stream
+      @collName
+      select: {name: true}
+    }
 
-    #stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName, idSet: [@aliceId]}
+    sample stream, 'data', 3, (err, dataset) =>
+      should.not.exist err
+      [[insert], _, [update]] = dataset
 
-    #stream.once 'data', (event) =>
+      update.should.include {
+        t: 'd'
+        op: 'u'
+        ns: 'test.users'
+        o2: {_id: @grahamId}
+        _id: @grahamId
+      }
+      should.exist update?.o?.$set, 'expected $set operation'
+      update.o.$set.should.include {name: 'Graham'}
+      update.o.$set.should.not.include {loginCount: 5}
+      done()
 
-      #should.exist event._id, 'expected id in first record'
-      #event._id.should.eql @aliceId
-      #event.t.should.eql 'ep'
-      #event.op.should.eql 'i'
+    @users.update {email: @grahamEmail}, {$set: {name: 'Graham', loginCount: 5}}, (err, status) =>
+      should.not.exist err
 
-      #stream.update {newIdSet: [@aliceId, @grahamId]}, ->
+  it 'should extend selection', (done) ->
 
-      #stream.once 'data', (event) =>
+    stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName, select: {_id: true}}
 
-        #should.exist event?._id, 'expected id in first record'
-        #event.t.should.eql 'ep'
-        #event.op.should.eql 'i'
-        #event._id.should.eql @grahamId
+    sample stream, 'data', 2, (err, dataset) =>
+      [[first]] = dataset
+      keys = Object.keys(first.o)
+      keys.should.include '_id'
+      keys.should.not.include 'email'
 
-        #done()
+      stream.update {newSelect: {_id: true, email: true}}, ->
 
-  #it 'should contract selection', (done) ->
+      sample stream, 'data', 2, (err, dataset) =>
+        [[first]] = dataset
+        keys = Object.keys(first.o)
+        keys.should.include '_id'
+        keys.should.include 'email'
+
+        done()
+
+  it 'should contract selection', (done) ->
+
+    stream = new QueryStream {
+      client: @watcher.queryClient
+      stream: @watcher.stream
+      @collName
+      idSet: [@aliceId, @grahamId]
+      select: {_id: true, email: true}
+    }
+
+    sample stream, 'data', 2, (err, dataset) =>
+      [[first]] = dataset
+      should.exist first?.o?.email, 'expected email in initial'
+      should.exist first?.o?._id, 'expected _id in initial'
+
+      stream.update {newSelect: {_id: true}}, ->
+
+      sample stream, 'data', 2, (err, dataset) =>
+        [[first]] = dataset
+        should.exist first?.o?.$unset?.email, 'expected {$unset: email}'
+
+        done()
+
+  # This doesn't work now because we have to send update events for all records...
+  # But we never recorded which records are present.
+  # Is it important?  If the consumer is caching, it should be updating us with a full list of IDs.
+  #
+  #it 'should contract selection with no idSet', (done) ->
 
   it 'should apply a format', (done) ->
 
@@ -141,4 +193,43 @@ boiler 'Query Stream', ->
 
       done()
 
-  #it 'formatter should split multi-set events', (done) ->
+  it 'formatter should split multi-set events', (done) ->
+
+    stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName, format: 'normal'}
+
+    sample stream, 'data', 4, (err, dataset) =>
+      should.not.exist err
+      [_, _, [setEvent], [pushEvent]] = dataset
+      if setEvent.operation is 'push'
+        [pushEvent, setEvent] = [setEvent, pushEvent]
+
+      setEvent.should.include {
+        operation: 'set'
+        path: 'name'
+        data: 'Graham'
+        namespace: 'test.users'
+      }
+
+      pushEvent.should.include {
+        operation: 'push'
+        path: 'friends'
+        data: 56
+        namespace: 'test.users'
+      }
+
+      done()
+
+    # MONGO BUG: This doesn't work... the $inc command doesn't make it through to the oplog
+    #@users.update {email: @grahamEmail}, {$set: {name: 'Graham'}, $inc: {loginCount: 1}}, (err, status) =>
+
+    @users.update {email: @grahamEmail}, {$set: {name: 'Graham'}, $push: {friends: 56}}, (err, status) =>
+      should.not.exist err
+
+  #it 'should stop processing', (done) ->
+    #stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName, format: 'normal'}
+    #stream.end()
+
+    #@watcher.stream.on 'data', (event) ->
+      # look for the event
+      # process.nextTick ->
+      #   should not have fired QueryStream
