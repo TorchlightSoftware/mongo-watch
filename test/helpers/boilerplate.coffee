@@ -3,6 +3,8 @@ logger = require 'ale'
 {sample} = require '../../lib/util'
 {focus} = require 'qi'
 
+require('../../lib/patchEventEmitter')() # suppress warnings
+
 MongoWatch = require '../..'
 host = 'localhost'
 port = 27017
