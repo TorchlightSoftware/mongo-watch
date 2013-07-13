@@ -3,6 +3,26 @@ _ = require 'lodash'
 logger = require 'ale'
 {ObjectID} = require 'mongodb'
 
+lObjMissing = (target, test) ->
+  switch util.getType(test)
+    when 'Array'
+      result = for item, index in test
+        lObjMissing target[index], test[index]
+      return _.compact result
+
+    when 'Object'
+      result = {}
+      for k of test
+        item = lObjMissing target[k], test[k]
+        result[k] = item if item?
+      return result
+
+    else
+      unless target? and target is test
+        return test
+      else
+        return undefined
+
 module.exports = util =
 
   getType: (obj) ->
@@ -48,8 +68,16 @@ module.exports = util =
       return data
 
   lMissing: (target, test) ->
-    return [] unless util.getType(target) is 'Array' and util.getType(test) is 'Array'
-    _.filter test, (t) -> t not in target
+
+    # handle objects in a separate function
+    if util.getType(target) is 'Object' and util.getType(test) is 'Object'
+      lObjMissing target, test
+
+    else if util.getType(target) is 'Array' and util.getType(test) is 'Array'
+      _.filter test, (t) -> t not in target
+
+    else
+      return []
 
   rMissing: (test, target) ->
     util.lMissing target, test

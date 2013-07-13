@@ -179,3 +179,34 @@ describe 'util', ->
         it description, ->
           result = rMissing test, target
           result.should.eql expected
+
+  describe 'lObjMissing', ->
+
+    tests = [
+        description: 'empty obj'
+        target: {}
+        test: {}
+        expected: {}
+      ,
+        description: 'right subset'
+        target: {foo: 1, bar: 2}
+        test: {foo: 1}
+        expected: {}
+      ,
+        description: 'left subset'
+        target: {foo: 1}
+        test: {foo: 1, bar: 2}
+        expected: {bar: 2}
+      ,
+        description: 'different value'
+        target: {foo: 1}
+        test: {foo: 2}
+        expected: {foo: 2}
+    ]
+
+    for t in tests
+      do (t) ->
+        {description, target, test, expected} = t
+        it description, ->
+          result = lMissing target, test
+          result.should.eql expected
