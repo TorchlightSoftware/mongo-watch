@@ -2,27 +2,6 @@ logger = require 'ale'
 should = require 'should'
 filterDelta = require '../lib/filterDelta'
 
-#sampleEvents =
-  #graham:
-     #t: 'p'
-     #op: 'i'
-     #ns: 'test.users'
-     #_id: '51e070258c3add6c75000001'
-     #o: { email: 'graham@daventry.com', _id: '51e070258c3add6c75000001' }
-  #alice:
-     #t: 'ep'
-     #op: 'i'
-     #ns: 'test.users'
-     #_id: '51e070258c3add6c75000002'
-     #o: { email: 'alice@daventry.com', _id: '51e070258c3add6c75000002' }
-  #gUpdate:
-     #op: 'u'
-     #ns: 'test.users'
-     #o2: { _id: '51e070258c3add6c75000001' }
-     #o: { '$set': { name: 'Graham' } }
-     #t: 'd'
-     #_id: '51e070258c3add6c75000001'
-
 fullEvent =
   email: 'graham@daventry.com'
   father:
@@ -40,7 +19,6 @@ fullEvent =
 updateEvent =
   $set: {name: 'Graham', status: 'online'}
   $inc: {loginCount: 1}
-
 
 describe 'filter delta', ->
   tests = [
