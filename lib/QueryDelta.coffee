@@ -1,6 +1,10 @@
 #deltas = new QueryDelta {collName, idSet, select}             # stream.Transform (filter with query)
 {Transform} = require 'stream'
 {walk, objectIDToString, getType} = require './util'
+logger = require 'ale'
+filterDelta = require './filterDelta'
+
+flag = false
 
 applyDefaults = (options) ->
   for required in ['stream', 'collName']
@@ -20,13 +24,20 @@ class QueryDelta extends Transform
   _transform: (event, encoding, done) ->
     event = walk event, objectIDToString # fuck ObjectIDs
 
+    # add meta info
     event.t = 'd'
     event._id = event.o2?._id or event.o?._id
-    if @options.idSet.length > 0
-      if event._id in @options.idSet
+
+    # filter out unwanted fields
+    event.o = filterDelta event.o, @options.select
+    if event.o
+
+      # filter out unwanted IDs
+      if @options.idSet.length > 0
+        if event._id in @options.idSet
+          @push event
+      else
         @push event
-    else
-      @push event
 
     done()
 
