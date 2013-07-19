@@ -12,7 +12,6 @@
     "ale":"*",
     "qi":"*",
     "lodash":"*",
-    "relcache":"*",
     "mongodb":"*"
   },
   "devDependencies":{

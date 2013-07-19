@@ -7,6 +7,11 @@ mapOp =
   u: 'update'
   r: 'remove'
 
+mapOrigin =
+  p: 'payload'
+  ep: 'end payload'
+  d: 'delta'
+
 # formats can return an Object or an Array
 # if it's an array, the elements should be sent as separate events
 module.exports =
@@ -78,6 +83,7 @@ module.exports =
 
     ops = for op in oplist
       base =
+        origin: mapOrigin[data.t]
         timestamp: getDate data.ts
         namespace: data.ns
         operationId: data.h

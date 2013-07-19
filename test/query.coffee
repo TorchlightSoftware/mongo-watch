@@ -6,7 +6,7 @@ boiler 'query', ->
 
   it 'should receive events for a record', (done) ->
 
-    @watcher.query {@collName, name: 'Alice', format: 'normal'}, (err, stream) =>
+    @watcher.query {@collName}, (err, stream) =>
       should.not.exist err
 
       sample stream, 'data', 2, (err, events) =>
