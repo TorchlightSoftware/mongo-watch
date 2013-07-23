@@ -4,9 +4,6 @@ relcache = require 'relcache'
 formats = require './formats'
 connect = require './connect'
 getOplogStream = require './getOplogStream'
-
-extractKeys = require './query/extractKeys'
-importKeys = require './cache/importKeys'
 QueryStream = require './QueryStream'
 
 applyDefaults = (options) ->
