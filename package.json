@@ -9,7 +9,7 @@
 
   "dependencies":{
     "coffee-script":"*",
-    "ale":"*",
+    "torch":"*",
     "qi":"*",
     "lodash":"*",
     "mongodb":"*"

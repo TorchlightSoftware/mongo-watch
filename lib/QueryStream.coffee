@@ -1,6 +1,6 @@
 {getType, getTimestamp, objectIDToString, lMissing, rMissing, walk} = require './util'
 {Transform, Readable} = require 'stream'
-logger = require 'ale'
+logger = require 'torch'
 QueryPayload = require './QueryPayload'
 QueryDelta = require './QueryDelta'
 formats = require './formats'

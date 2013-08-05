@@ -1,6 +1,6 @@
 _ = require 'lodash'
 {getType} = require './util'
-logger = require 'ale'
+logger = require 'torch'
 
 module.exports = walk = (event, select) ->
 

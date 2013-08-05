@@ -1,6 +1,6 @@
 {getTimestamp} = require './util'
 connect = require './connect'
-logger = require 'ale'
+logger = require 'torch'
 
 module.exports = ({host, port, dbOpts}, done) ->
   connect {db: 'local', host, port, dbOpts}, (err, oplogClient) =>

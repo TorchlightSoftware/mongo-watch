@@ -1,7 +1,7 @@
 #deltas = new QueryDelta {collName, idSet, select}             # stream.Transform (filter with query)
 {Transform} = require 'stream'
 {walk, objectIDToString, getType} = require './util'
-logger = require 'ale'
+logger = require 'torch'
 filterDelta = require './filterDelta'
 
 flag = false

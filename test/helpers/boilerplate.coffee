@@ -1,5 +1,5 @@
 should = require 'should'
-logger = require 'ale'
+logger = require 'torch'
 {sample} = require '../../lib/util'
 {focus} = require 'qi'
 

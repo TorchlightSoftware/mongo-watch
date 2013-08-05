@@ -81,6 +81,11 @@ module.exports =
           path: '.'
         ]
 
+      when 'n'
+        oplist = [
+          operation: 'noop'
+        ]
+
     ops = for op in oplist
       base =
         origin: mapOrigin[data.t]

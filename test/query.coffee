@@ -1,4 +1,4 @@
-logger = require 'ale'
+logger = require 'torch'
 should = require 'should'
 {sample} = require '../lib/util'
 

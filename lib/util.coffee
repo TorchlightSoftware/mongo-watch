@@ -1,6 +1,6 @@
 {Timestamp} = require 'mongodb'
 _ = require 'lodash'
-logger = require 'ale'
+logger = require 'torch'
 {ObjectID} = require 'mongodb'
 
 lObjMissing = (target, test) ->

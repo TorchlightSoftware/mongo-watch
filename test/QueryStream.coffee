@@ -1,5 +1,5 @@
 should = require 'should'
-logger = require 'ale'
+logger = require 'torch'
 QueryStream = require '../lib/QueryStream'
 {sample} = require '../lib/util'
 
@@ -233,3 +233,17 @@ boiler 'Query Stream', ->
       # look for the event
       # process.nextTick ->
       #   should not have fired QueryStream
+
+boiler 'Query Stream', (->
+  it 'format an empty payload', (done) ->
+
+    stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName, format: 'normal'}
+
+    stream.once 'data', (event) ->
+      event.should.include {
+        operation: 'noop',
+        origin: 'end payload',
+        namespace: 'test.users'
+      }
+      done()
+), true

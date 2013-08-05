@@ -1,6 +1,6 @@
 {stringToObjectID, getTimestamp} = require './util'
 {Readable} = require 'stream'
-logger = require 'ale'
+logger = require 'torch'
 formatPayload = require './events/formatPayload'
 
 applyDefaults = (options) ->

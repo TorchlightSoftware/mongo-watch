@@ -1,5 +1,4 @@
 {EventEmitter} = require 'events'
-relcache = require 'relcache'
 
 formats = require './formats'
 connect = require './connect'

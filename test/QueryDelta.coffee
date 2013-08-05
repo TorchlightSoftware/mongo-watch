@@ -1,5 +1,5 @@
 should = require 'should'
-logger = require 'ale'
+logger = require 'torch'
 
 QueryDelta = require '../lib/QueryDelta'
 
