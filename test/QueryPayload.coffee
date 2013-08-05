@@ -46,3 +46,17 @@ boiler 'Query Payload', ->
       should.exist alice.o._id
       should.not.exist alice.o.email
       done()
+
+boiler 'Query Payload - with no data', (->
+  it 'should send a noop end payload', (done) ->
+    payload = new QueryPayload {client: @watcher.queryClient, @collName}
+
+    payload.once 'data', (event) =>
+      event.should.include {
+        t: 'ep'
+        op: 'n'
+        ns: 'test.users'
+      }
+      done()
+
+), true # disable data inserts

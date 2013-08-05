@@ -11,7 +11,7 @@ port = 27017
 db = 'test'
 dbOpts = {w: 1, journal: true}
 
-global.boiler = (description, tests) ->
+global.boiler = (description, tests, disableData) ->
   describe description, ->
 
     before (done) ->
@@ -26,6 +26,8 @@ global.boiler = (description, tests) ->
           done()
 
     beforeEach (done) ->
+      return done() if disableData
+
       cbGen = focus (err, records) =>
         should.not.exist err
         {g: [graham], a: [alice]} = records
@@ -38,7 +40,6 @@ global.boiler = (description, tests) ->
 
       # wait for oplog events to fire so they don't interfere with tests
       sample @watcher.stream, 'data', 2, cbGen()
-
 
     # an attempt to make sure deletion events don't affect the next test
     afterEach (done) ->

@@ -1,4 +1,4 @@
-{stringToObjectID} = require './util'
+{stringToObjectID, getTimestamp} = require './util'
 {Readable} = require 'stream'
 logger = require 'ale'
 formatPayload = require './events/formatPayload'
@@ -32,8 +32,19 @@ class QueryPayload extends Readable
         if err
           @emit 'error', err
         else
-          for event in formatPayload results, @options
-            @push event
+
+          if results.length > 0
+            for event in formatPayload results, @options
+              @push event
+
+          # we got no data, so send a noop/end payload to tell the listener we are done
+          else
+            @push {
+              t: 'ep'
+              op: 'n'
+              ns: 'test.users'
+              ts: getTimestamp()
+            }
 
   _read: (size) ->
     #logger.blue 'requested read'
