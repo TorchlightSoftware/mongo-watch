@@ -39,7 +39,7 @@ class MongoWatch extends EventEmitter
     {format} = @options
 
     @ready =>
-      output = new QueryStream {@stream, client: @queryClient, collName, idSet, format}
+      output = new QueryStream {@stream, client: @queryClient, collName, idSet, select, format}
       receiver null, output
 
   ready: (done) ->
