@@ -9,6 +9,7 @@ applyDefaults = (options) ->
 
   options.idSet ?= []
   options.select ?= {}
+  options.select = {} if options.select is true
   options
 
 idSetToQuery = (idSet) ->

@@ -27,6 +27,15 @@ boiler 'Query Payload', ->
 
         done()
 
+  it 'should ignore {select: true}', (done) ->
+    payload = new QueryPayload {client: @watcher.queryClient, @collName, select: true}
+
+    sample payload, 'data', 2, (err, dataset) =>
+      [[graham], [alice]] = dataset
+      testEvent graham, @grahamEmail
+      testEvent alice, @aliceEmail, true
+      done()
+
   it 'should perform idSet filter', (done) ->
     payload = new QueryPayload {client: @watcher.queryClient, @collName, idSet: [@aliceId]}
 

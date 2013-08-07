@@ -39,6 +39,17 @@ boiler 'Query Delta', ->
       @users.update {email: @aliceEmail}, {$set: {name: 'Alice'}}, (err, status) =>
         should.not.exist err
 
+  it 'should ignore {select: true}', (done) ->
+    delta = new QueryDelta {stream: @watcher.stream, @collName, select: true}
+
+    @users.update {email: @grahamEmail}, {$set: {name: 'Graham'}}, (err, status) =>
+      should.not.exist err
+
+    delta.once 'data', (event) =>
+      testEvent event, 'Graham'
+
+      done()
+
   it 'should select records', (done) ->
     delta = new QueryDelta {stream: @watcher.stream, @collName, select: {name: true}}
 
