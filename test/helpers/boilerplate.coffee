@@ -23,7 +23,9 @@ global.boiler = (description, tests, disableData) ->
       @watcher.ready =>
         @watcher.queryClient.collection @collName, (err, @users) =>
           should.not.exist err
-          done()
+          @watcher.queryClient.collection 'stuffs', (err, @stuffs) =>
+            should.not.exist err
+            done()
 
     beforeEach (done) ->
       return done() if disableData
@@ -59,8 +61,9 @@ global.boiler = (description, tests, disableData) ->
 
       @watcher.stream.on 'data', watch
 
-      @users.remove {}, (err, numRemoved) =>
-        expecting = numRemoved
-        check()
+      @stuffs.remove {}, =>
+        @users.remove {}, (err, numRemoved) =>
+          expecting = numRemoved
+          check()
 
     tests()

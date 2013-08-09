@@ -22,6 +22,11 @@ class QueryDelta extends Transform
     @options.stream.pipe @
 
   _transform: (event, encoding, done) ->
+
+    # filter out records from other collections
+    [db, coll] = event.ns.split('.')
+    return unless coll is @options.collName
+
     event = walk event, objectIDToString # fuck ObjectIDs
 
     # add meta info
