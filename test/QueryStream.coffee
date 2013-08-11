@@ -225,6 +225,74 @@ boiler 'Query Stream', ->
     @users.update {email: @grahamEmail}, {$set: {name: 'Graham'}, $push: {friends: 56}}, (err, status) =>
       should.not.exist err
 
+  it 'should select nothing with empty idSet', (done) ->
+
+    stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName, idSet: []}
+
+    sample stream, 'data', 1, (err, dataset) =>
+      should.not.exist err
+      [[noop]] = dataset
+
+      noop.t.should.eql 'ep'
+      noop.op.should.eql 'n'
+
+
+      done()
+
+  it 'should extend from empty idSet', (done) ->
+
+    stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName, idSet: []}
+
+    sample stream, 'data', 2, (err, dataset) =>
+      should.not.exist err
+      [[noop], [alice]] = dataset
+
+      noop.t.should.eql 'ep'
+      noop.op.should.eql 'n'
+
+      alice.t.should.eql 'ep'
+      alice.op.should.eql 'i'
+      alice.o.email.should.eql @aliceEmail
+
+      done()
+
+    stream.update {newIdSet: [@aliceId]}
+
+  # TODO: This will require us to keep track internally of what IDs are in a collection.
+  #       Seems like an edge case, defering for now.
+  #it 'should contract from no idSet', (done) ->
+
+    #stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName}
+
+    #sample stream, 'data', 1, (err, dataset) =>
+      #should.not.exist err
+      #[[graham], [alice], [dGraham]] = dataset
+
+      #noop.t.should.eql 'ep'
+      #noop.op.should.eql 'n'
+
+      #done()
+
+    #stream.update {newIdSet: [@aliceId]}
+
+  # TODO: This will require us to keep track internally of what IDs are in a collection.
+  #       Seems like an edge case, defering for now.
+  #it 'should extend to no idSet', (done) ->
+
+    #stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName, idSet: [@aliceId]}
+
+    #sample stream, 'data', 1, (err, dataset) =>
+      #should.not.exist err
+      #[[graham], [alice], [dGraham]] = dataset
+
+      #noop.t.should.eql 'ep'
+      #noop.op.should.eql 'n'
+
+
+      #done()
+
+    #stream.update {newIdSet: null}
+
   #it 'should stop processing', (done) ->
     #stream = new QueryStream {client: @watcher.queryClient, stream: @watcher.stream, @collName, format: 'normal'}
     #stream.end()

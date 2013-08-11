@@ -11,13 +11,12 @@ applyDefaults = (options) ->
   for required in ['client', 'stream', 'collName']
     throw new Error "#{required} required!" unless options[required]?
 
-  options.idSet or= []
   options.format or= 'raw'
   options.select or= {}
   options
 
 makeDeleteEvents = (idSet, client, collName) ->
-  return [] unless idSet? and idSet.length > 0
+  return [] unless idSet?
   idSet = idSet.map objectIDToString
 
   events = for id in idSet
