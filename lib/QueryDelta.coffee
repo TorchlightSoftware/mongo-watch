@@ -11,7 +11,6 @@ applyDefaults = (options) ->
     throw new Error "#{required} required!" unless options[required]?
 
   options.select or= {}
-  options.idSet or= []
   options
 
 class QueryDelta extends Transform
@@ -38,7 +37,7 @@ class QueryDelta extends Transform
     if event.o
 
       # filter out unwanted IDs
-      if @options.idSet.length > 0
+      if @options.idSet?
         if event._id in @options.idSet
           @push event
       else

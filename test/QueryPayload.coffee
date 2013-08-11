@@ -43,6 +43,17 @@ boiler 'Query Payload', ->
       testEvent event, @aliceEmail, true
       done()
 
+  it 'should select nothing on empty idSet', (done) ->
+    payload = new QueryPayload {client: @watcher.queryClient, @collName, idSet: []}
+
+    payload.once 'data', (event) =>
+      event.should.include {
+        t: 'ep'
+        op: 'n'
+        ns: 'test.users'
+      }
+      done()
+
   it 'should perform select filter', (done) ->
     payload = new QueryPayload {client: @watcher.queryClient, @collName, select: {_id: 1}}
 

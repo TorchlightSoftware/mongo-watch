@@ -104,3 +104,19 @@ boiler 'Query Delta', ->
     # insert a record for another collection
     @stuffs.insert {stuff: ['foo']}, (err, status) =>
       should.not.exist err
+
+  it 'empty idSet should ignore all records', (done) ->
+    delta = new QueryDelta {stream: @watcher.stream, @collName, idSet: []}
+
+    failed = false
+    delta.once 'data', ->
+      failed = true
+
+    @users.update {email: @grahamEmail}, {$set: {name: 'Graham'}}, (err, status) =>
+      should.not.exist err
+
+    # verify on nextTick after watcher stream sees insert
+    @watcher.stream.once 'data', (event) ->
+      process.nextTick ->
+        failed.should.not.be.true
+        done()
