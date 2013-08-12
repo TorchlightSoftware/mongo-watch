@@ -29,7 +29,7 @@ module.exports =
     operation: mapOp[data.op] or data.op
     namespace: data.ns
     operationId: data.h
-    targetId: data.o2?._id or data.o?._id
+    targetId: data._id
     criteria: data.o2 if data.o2
     data: data.o
 
@@ -39,7 +39,7 @@ module.exports =
     # convert ObjectIDs to strings
     data = walk data, objectIDToString
 
-    targetId = (data.o2?._id or data.o?._id)
+    targetId = data._id
     delete data.o._id if data.o
 
     switch data.op
