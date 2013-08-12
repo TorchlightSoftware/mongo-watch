@@ -24,7 +24,7 @@ class QueryDelta extends Transform
 
     # filter out records from other collections
     [db, coll] = event.ns.split('.')
-    return unless coll is @options.collName
+    return done() unless coll is @options.collName
 
     event = walk event, objectIDToString # fuck ObjectIDs
 
