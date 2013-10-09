@@ -1,4 +1,4 @@
-# Mongo Watcher
+# Mongo Watch
 
 Mongo-Watch creates active queries to Mongo.  Whereas most query interfaces will hand you back a snapshot of the data, Mongo-Watch gives you not only the current data, but subscribes you to all changes that occur to that data.
 
