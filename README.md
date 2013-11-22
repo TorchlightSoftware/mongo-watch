@@ -13,6 +13,8 @@ Because the watcher ties in to the oplog, this solution should scale with you as
 
 Happy event driven programming!  8-)
 
+**Note:** The query functionality previously supported in 0.1.12 is now deprecated.  This code will be moved to [Particle](https://github.com/torchlightsoftware/particle).  Sorry for any inconvenience, but I determined this would be a much cleaner place to separate the APIs and respective responsibilities of the libraries.
+
 ## Install
 
 ```bash
