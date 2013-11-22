@@ -1,4 +1,4 @@
-# Mongo Watcher
+# Mongo Watch
 
 This watcher ties into the MongoDB replication log (local.oplog.rs) and notifies your watchers any time the data changes.
 
