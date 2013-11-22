@@ -1,10 +1,11 @@
 {getTimestamp} = require './util'
 connect = require './connect'
 logger = require 'torch'
+_ = require 'lodash'
 
-module.exports = ({host, port, dbOpts}, done) ->
-  connect {db: 'local', host, port, dbOpts}, (err, oplogClient) =>
-    return @error 'Error connecting to database:', err if err
+module.exports = ({host, port, dbOpts, username, password}, done) ->
+  connect {db: 'local', host, port, dbOpts, username, password}, (err, oplogClient) =>
+    return done new Error "Error connecting to database: #{err}" if err
 
     oplogClient.collection 'oplog.rs', (err, oplog) ->
       return done err if err

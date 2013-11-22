@@ -11,6 +11,8 @@ port = 27017
 db = 'test'
 dbOpts = {w: 1, journal: true}
 
+global.testSettings = {host, port, db, dbOpts}
+
 global.boiler = (description, tests, disableData) ->
   describe description, ->
 
