@@ -2,7 +2,6 @@ should = require 'should'
 {Server, Db} = require 'mongodb'
 {isEqual} = require 'lodash'
 {inspect} = require 'util'
-logger = (args...) -> console.log args.map((a) -> if (typeof a) is 'string' then a else inspect a, null, 4)...
 
 MongoWatch = require '../'
 
@@ -22,17 +21,28 @@ describe 'Mongo Watch', ->
     delete @watcher
     @users.remove {}, done
 
-  it 'insert should emit an event', (done) ->
-    @watcher = new MongoWatch
+  it 'with no activity should not receive events', (done) ->
+    @watcher = new MongoWatch #{onDebug: logger.yellow}
     @watcher.watch 'test.users', (event) ->
+      #logger.yellow event
+
+      throw new Error "Expected no events. Got:\n#{inspect event, null, null}"
+
+    setTimeout done, 20
+
+  it 'insert should emit an event', (done) ->
+    @watcher = new MongoWatch #{onDebug: logger.yellow}
+    @watcher.watch 'test.users', (event) ->
+      #logger.yellow event
 
       if event.op is 'i'
         should.exist event.o?.email
-        event.o.email.should.eql 'graham@daventry.com'
+        event.o.email.should.eql 'billy@daventry.com'
         done()
 
-    @users.insert {email: 'graham@daventry.com'}, (err, status) ->
-      should.not.exist err
+    @watcher.ready =>
+      @users.insert {email: 'billy@daventry.com'}, (err, status) ->
+        should.not.exist err
 
   it 'pretty format should work', (done) ->
     @watcher = new MongoWatch {format: 'pretty'}
@@ -43,8 +53,9 @@ describe 'Mongo Watch', ->
         event.data.email.should.eql 'graham@daventry.com'
         done()
 
-    @users.insert {email: 'graham@daventry.com'}, (err, status) ->
-      should.not.exist err
+    @watcher.ready =>
+      @users.insert {email: 'graham@daventry.com'}, (err, status) ->
+        should.not.exist err
 
   it 'update multiple should emit an event', (done) ->
 
@@ -83,12 +94,13 @@ describe 'Mongo Watch', ->
           'foo.bar.baz': 'herro'
 
       # When I update 2 existing documents
-      @users.update {}, data, {multi: true}, (err, status) =>
-        should.not.exist err
-
-        # And I update 1 existing document
-        @users.update {}, data2, (err, status) ->
+      @watcher.ready =>
+        @users.update {}, data, {multi: true}, (err, status) =>
           should.not.exist err
+
+          # And I update 1 existing document
+          @users.update {}, data2, (err, status) ->
+            should.not.exist err
 
   describe 'normal format', ->
 
@@ -110,8 +122,9 @@ describe 'Mongo Watch', ->
         }
         expectOp event, expected, done
 
-      @users.insert {email: 'graham@daventry.com'}, (err, status) ->
-        should.not.exist err
+      @watcher.ready =>
+        @users.insert {email: 'graham@daventry.com'}, (err, status) ->
+          should.not.exist err
 
     it 'should process simple update', (done) ->
       @users.insert {email: 'graham@daventry.com'}, (err, status) =>
@@ -128,6 +141,6 @@ describe 'Mongo Watch', ->
           }
           expectOp event, expected, done
 
-
-        @users.update {email: 'graham@daventry.com'}, {firstName: 'Graham'}, (err, status) ->
-          should.not.exist err
+        @watcher.ready =>
+          @users.update {email: 'graham@daventry.com'}, {firstName: 'Graham'}, (err, status) ->
+            should.not.exist err

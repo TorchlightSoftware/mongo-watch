@@ -1,14 +1,15 @@
 {EventEmitter} = require 'events'
 formats = require './formats'
-connect = require('./connect')
+getOplogStream = require('./getOplogStream')
 
 applyDefaults = (options) ->
-  options ||= {}
-  options.port ||= 27017
-  options.host ||= 'localhost'
-  options.format ||= 'raw'
-  options.onError ||= (error) -> console.log 'Error - MongoWatch:', (error?.stack or error)
-  options.onDebug ||= ->
+  options or= {}
+  options.port or= 27017
+  options.host or= 'localhost'
+  options.dbOpts or= {w: 1}
+  options.format or= 'raw'
+  options.onError or= (error) -> console.log 'Error - MongoWatch:', (error?.stack or error)
+  options.onDebug or= ->
   options
 
 class MongoWatch
@@ -23,7 +24,7 @@ class MongoWatch
     @channel.on 'connected', => @status = 'connected'
     @debug = @options.onDebug
 
-    connect @options, (err, @stream) =>
+    getOplogStream @options, (err, @stream, @oplogClient) =>
       @channel.emit 'error', err if err
       @debug "Emiting 'connected'. Stream exists:", @stream?
       @channel.emit 'connected'
