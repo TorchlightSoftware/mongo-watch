@@ -56,6 +56,14 @@ See the applyDefaults function in [lib/main.coffee](https://github.com/Torchligh
 
 See the tests for more examples.
 
+## Authentication
+
+Pass the "username" and "password" options.
+
+```coffee
+watcher = new MongoWatch {username: 'bobross', password: 'happytrees'}
+```
+
 ## Debugging
 
 If you pass the onDebug option with a function of your choice, it will be notified of major events in the listener lifecycle.  This is useful for troubleshooting if you're not receiving the notifications you expect.

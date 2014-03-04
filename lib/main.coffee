@@ -10,7 +10,9 @@ applyDefaults = (options) ->
   options.format or= 'raw'
   options.onError or= (error) -> console.log 'Error - MongoWatch:', (error?.stack or error)
   options.onDebug or= ->
-  options
+  #options.username or= null
+  #options.password or= null
+  return options
 
 class MongoWatch
   status: 'connecting'
