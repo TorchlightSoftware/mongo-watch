@@ -10,7 +10,7 @@ module.exports = ({db, host, port, dbOpts, username, password}, done) ->
 
     # authenticate if credentials were provided
     if username? or password?
-      client.authenticate username, password, (err, result) ->
+      client.authenticate username, password, {authdb:'admin'}, (err, result) ->
         done err, client
 
     else
