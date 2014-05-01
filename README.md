@@ -101,6 +101,10 @@ Removing listeners for: test.users
 
 [Kristina Chodorow](http://www.kchodorow.com/blog/2010/10/12/replication-internals/) was very helpful both in documenting the oplog in her blog posts, and in answering some of my questions.  Christian Kvalheim's [code](https://github.com/christkv/realtime/blob/master/lib/app/dataproviders/flow_data_provider.js) served as the basis for the cursor connection.
 
+## Contributing
+
+Pull requests welcome!  Please create a feature branch instead of submitting directly to master.  This will help me test/verify before merging.
+
 ## LICENSE
 
 (MIT License)
