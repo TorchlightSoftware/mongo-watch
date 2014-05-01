@@ -45,13 +45,23 @@ describe 'Mongo Watch', ->
         should.not.exist err
 
   it 'pretty format should work', (done) ->
-    @watcher = new MongoWatch {format: 'pretty'}
+    @watcher = new MongoWatch {format: 'pretty', convertObjectIDs: true}
     @watcher.watch 'test.users', (event) ->
+      event.operation.should.eql 'insert'
+      should.exist event.data?.email
+      event.data._id.constructor.name.should.eql 'String'
+      event.data.email.should.eql 'graham@daventry.com'
+      done()
 
-      if event.operation is 'insert'
-        should.exist event.data?.email
-        event.data.email.should.eql 'graham@daventry.com'
-        done()
+    @watcher.ready =>
+      @users.insert {email: 'graham@daventry.com'}, (err, status) ->
+        should.not.exist err
+
+  it 'pretty format should optionally convert ObjectIDs', (done) ->
+    @watcher = new MongoWatch {format: 'pretty', convertObjectIDs: false}
+    @watcher.watch 'test.users', (event) ->
+      event.data._id.constructor.name.should.eql 'ObjectID'
+      done()
 
     @watcher.ready =>
       @users.insert {email: 'graham@daventry.com'}, (err, status) ->

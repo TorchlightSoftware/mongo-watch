@@ -1,4 +1,4 @@
-{getDate, walk, convertObjectID} = require './util'
+{getDate} = require './util'
 
 mapOp =
   n: 'noop'
@@ -13,10 +13,6 @@ module.exports =
 
   # something a bit more readable, but preserving the original data
   pretty: (data) ->
-
-    # convert ObjectIDs to strings
-    data = walk data, convertObjectID
-
     timestamp: getDate data.ts
     operation: mapOp[data.op] or data.op
     namespace: data.ns
@@ -27,10 +23,6 @@ module.exports =
 
   # restructure all ops to look like updates
   normal: (data) ->
-
-    # convert ObjectIDs to strings
-    data = walk data, convertObjectID
-
     targetId = (data.o2?._id or data.o?._id)
     delete data.o._id if data.o
 

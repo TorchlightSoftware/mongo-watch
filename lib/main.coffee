@@ -1,6 +1,7 @@
 {EventEmitter} = require 'events'
 formats = require './formats'
-getOplogStream = require('./getOplogStream')
+getOplogStream = require './getOplogStream'
+{walk, convertObjectID} = require './util'
 
 applyDefaults = (options) ->
   options or= {}
@@ -8,6 +9,7 @@ applyDefaults = (options) ->
   options.host or= 'localhost'
   options.dbOpts or= {w: 1}
   options.format or= 'raw'
+  options.convertObjectIDs ?= true
   options.onError or= (error) -> console.log 'Error - MongoWatch:', (error?.stack or error)
   options.onDebug or= ->
   #options.username or= null
@@ -55,6 +57,10 @@ class MongoWatch
           channel = if collection then "change:#{collection}" else 'change'
           formatter = formats[@options.format] or formats['raw']
           event = formatter data
+
+          # convert ObjectIDs to strings
+          if @options.convertObjectIDs is true
+            event = walk event, convertObjectID
 
           @debug 'Emitting event:', {channel: channel, event: event}
           @channel.emit collection, event
