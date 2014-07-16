@@ -9,6 +9,7 @@ applyDefaults = (options) ->
   options.host or= 'localhost'
   options.dbOpts or= {w: 1}
   options.format or= 'raw'
+  options.useMasterOplog or= false
   options.convertObjectIDs ?= true
   options.onError or= (error) -> console.log 'Error - MongoWatch:', (error?.stack or error)
   options.onDebug or= ->

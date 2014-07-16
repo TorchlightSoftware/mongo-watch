@@ -1,11 +1,19 @@
 # Mongo Watch
 
-This watcher ties into the MongoDB replication log (local.oplog.rs) and notifies your watchers any time the data changes.
+This watcher ties into the MongoDB replication log (local.oplog.rs) by default, but you can also tie into local.oplog.$main on a master DB. It then notifies your watchers any time the data changes.
 
 In order to use this you must:
 
+*replication log*
+
 1. Have access to the oplog.  This will not be available on shared DB hosting, as it would reveal everyone else's database transactions to you.
-2. Have replication enabled.  This can be done by starting mongod with the option '--replSet someArbitraryName'.  You must then call `rs.initiate()` from the mongo CLI.
+2. Have replication enabled.  This can be done by starting mongod with the option `--replSet someArbitraryName`.  You must then call `rs.initiate()` from the mongo CLI.
+
+*master log*
+
+1. Have access to the oplog.  This will not be available on shared DB hosting, as it would reveal everyone else's database transactions to you.
+2. Start your mongod as `--master`.
+3. Use: `new MongoWatch({useMasterOplog:true})`
 
 The watcher is fairly low latency and overhead.  On my machine a test with a single insert and watcher takes 20ms.  The cursor used to tail the oplog is being initialized with {awaitdata: true} so the data should be getting pushed from MongoDB's internal mechanism, instead of polling.
 
