@@ -5,10 +5,12 @@ This watcher ties into the MongoDB replication log (local.oplog.rs) by default, 
 In order to use this you must:
 
 *replication log*
+
 1. Have access to the oplog.  This will not be available on shared DB hosting, as it would reveal everyone else's database transactions to you.
 2. Have replication enabled.  This can be done by starting mongod with the option '--replSet someArbitraryName'.  You must then call `rs.initiate()` from the mongo CLI.
 
 *master log*
+
 1. Have access to the oplog.  This will not be available on shared DB hosting, as it would reveal everyone else's database transactions to you.
 2. Start your mongod as '--master'.
 3. Use: 'new MongoWatch({useMasterOplog:true})'
