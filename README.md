@@ -78,12 +78,12 @@ If you pass a replicaSet array it will be used to establish a connection.
 It should keep working in case the primary changes - i.e. when it dies, and secondary takes it place.
 
 ```coffee
-    watcher = new MongoWatch {
-        replicaSet: [
-            {host: "currentPrimary.mongoexample.com", port : 10453},
-            {host: "currentSecondary.mongoexample.com", port : 10452}
-        ]
-    }
+watcher = new MongoWatch {
+    replicaSet: [
+        {host: "currentPrimary.mongoexample.com", port : 10453},
+        {host: "currentSecondary.mongoexample.com", port : 10452}
+    ]
+}
 ```
 
 ## Debugging
