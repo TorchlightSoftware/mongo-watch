@@ -3,7 +3,7 @@ _ = require 'lodash'
 
 connect = require '../lib/connect'
 
-testSettings = {host: 'localhost', port: 27017, db: 'local', dbOpts: {w: 1, journal: true}}
+testSettings = {host: 'localhost', port: 27017, db: 'local', authdb: 'admin', dbOpts: {w: 1, journal: true}}
 
 describe 'connect', ->
   before (done) ->
