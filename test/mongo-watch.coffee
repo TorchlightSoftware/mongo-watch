@@ -24,10 +24,7 @@ describe 'Mongo Watch', ->
   it 'with no activity should not receive events', (done) ->
     @watcher = new MongoWatch #{onDebug: logger.yellow}
     @watcher.watch 'test.users', (event) ->
-      #logger.yellow event
-
       throw new Error "Expected no events. Got:\n#{inspect event, null, null}"
-
     setTimeout done, 20
 
   it 'insert should emit an event', (done) ->
@@ -70,7 +67,7 @@ describe 'Mongo Watch', ->
   it 'update multiple should emit an event', (done) ->
 
     # Given I have two users
-    @users.insert [{email: 'graham@daventry.com'}, {email: 'valinice@daventry.com'}], (err, status) =>
+    @users.insert [{email: 'richard@daventry.com'}, {email: 'valinice@daventry.com'}], (err, status) =>
       should.not.exist err
 
       # And I'm watching the users collection
@@ -112,45 +109,43 @@ describe 'Mongo Watch', ->
           @users.update {}, data2, (err, status) ->
             should.not.exist err
 
-  describe 'normal format', ->
+  expectOp = (event, expected, done) ->
+    for op in event.oplist
+      (typeof op.id).should.eql 'string', 'Expected id to be a string.'
+      delete op.id
+      if isEqual op, expected
+        done()
 
-    expectOp = (event, expected, done) ->
-      for op in event.oplist
-        (typeof op.id).should.eql 'string', 'Expected id to be a string.'
-        delete op.id
-        if isEqual op, expected
-          done()
+  it 'should process insert', (done) ->
+    @watcher = new MongoWatch {format: 'normal'}
+    @watcher.watch 'test.users', (event) ->
+      should.exist event.timestamp
+      expected = {
+        operation: 'set'
+        path: '.'
+        data: {email: 'graham@daventry.com'}
+      }
+      expectOp event, expected, done
 
-    it 'should process insert', (done) ->
+    @watcher.ready =>
+      @users.insert {email: 'graham@daventry.com'}, (err, status) ->
+        should.not.exist err
+
+  it 'should process simple update', (done) ->
+    @users.insert {email: 'graham@daventry.com'}, (err, status) =>
+      should.not.exist err
+
       @watcher = new MongoWatch {format: 'normal'}
       @watcher.watch 'test.users', (event) ->
-        should.exist event.timestamp
+        should.exist event.timestamp, 'expected timestamp'
+        should.exist event.oplist, 'expected oplist'
         expected = {
           operation: 'set'
           path: '.'
-          data: {email: 'graham@daventry.com'}
+          data: {firstName: 'Graham'}
         }
         expectOp event, expected, done
 
       @watcher.ready =>
-        @users.insert {email: 'graham@daventry.com'}, (err, status) ->
+        @users.update {email: 'graham@daventry.com'}, {firstName: 'Graham'}, (err, status) ->
           should.not.exist err
-
-    it 'should process simple update', (done) ->
-      @users.insert {email: 'graham@daventry.com'}, (err, status) =>
-        should.not.exist err
-
-        @watcher = new MongoWatch {format: 'normal'}
-        @watcher.watch 'test.users', (event) ->
-          should.exist event.timestamp, 'expected timestamp'
-          should.exist event.oplist, 'expected oplist'
-          expected = {
-            operation: 'set'
-            path: '.'
-            data: {firstName: 'Graham'}
-          }
-          expectOp event, expected, done
-
-        @watcher.ready =>
-          @users.update {email: 'graham@daventry.com'}, {firstName: 'Graham'}, (err, status) ->
-            should.not.exist err

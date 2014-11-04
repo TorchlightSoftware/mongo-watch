@@ -3,14 +3,15 @@ _ = require 'lodash'
 
 connect = require '../lib/connect'
 
-testSettings = {host: 'localhost', port: 27017, db: 'local', dbOpts: {w: 1, journal: true}}
+testSettings = {host: 'localhost', port: 27017, db: 'admin', dbOpts: {w: 1, journal: true}}
 
 describe 'connect', ->
   before (done) ->
     # add a user that we can connect to later
     connect testSettings, (err, client) ->
       client.addUser 'Fred', 'Flintstone', (err) ->
-        should.not.exist err
+        unless err?.code is 11000 # don't care about duplicate
+          should.not.exist err
         done()
 
   it 'should connect anonymous', (done) ->
