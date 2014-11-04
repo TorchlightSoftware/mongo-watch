@@ -72,6 +72,20 @@ Pass the "username" and "password" options.
 watcher = new MongoWatch {username: 'bobross', password: 'happytrees'}
 ```
 
+## Replica sets
+
+If you pass a replicaSet array it will be used to establish a connection.
+It should keep working in case the primary changes - i.e. when it dies, and secondary takes it place.
+
+```coffee
+watcher = new MongoWatch {
+    replicaSet: [
+        {host: "currentPrimary.mongoexample.com", port : 10453},
+        {host: "currentSecondary.mongoexample.com", port : 10452}
+    ]
+}
+```
+
 ## Debugging
 
 If you pass the onDebug option with a function of your choice, it will be notified of major events in the listener lifecycle.  This is useful for troubleshooting if you're not receiving the notifications you expect.

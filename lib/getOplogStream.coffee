@@ -1,8 +1,8 @@
 {getTimestamp} = require './util'
 connect = require './connect'
 
-module.exports = ({host, port, dbOpts, username, password, useMasterOplog}, done) ->
-  connect {db: 'local', host, port, dbOpts, username, password}, (err, oplogClient) =>
+module.exports = ({host, port, dbOpts, username, password, useMasterOplog, authdb, replicaSet}, done) ->
+  connect {db: 'local', host, port, dbOpts, username, password, authdb, replicaSet}, (err, oplogClient) =>
     return done new Error "Error connecting to database: #{err}" if err
 
     collection = 'oplog.rs'
