@@ -2,6 +2,14 @@
 
 This watcher ties into the MongoDB replication log (local.oplog.rs) by default, but you can also tie into local.oplog.$main on a master DB. It then notifies your watchers any time the data changes.
 
+# ** Deprecated **
+
+### I'm no longer actively using this library and make no guarantees of a quick response.  I'll leave it in its present state, and make some efforts to merge pull requests.  If you're interested in maintaining it, please contact me: info at torchlightsoftware.com.
+
+### In leiu of this library, I would recommend checking out Meteor, Firebase, or Strongloop/Loopback.  All of these  have built robust server <-> client replication protocols, and have the resources to maintain and support their solutions.
+
+## Overview
+
 In order to use this you must:
 
 *replication log*
