@@ -7,9 +7,7 @@ module.exports = ({db, host, port, dbOpts, username, password, authdb, replicaSe
 
   if replicaSet
     replSetServers = []
-    _(replicaSet).forEach (replicaServer) ->
-      replSetServers.push new Server(replicaServer.host, replicaServer.port)
-      return
+    replSetServers = (new Server(num.host, num.port) for num in replicaSet)
 
     connection = new ReplSetServers(replSetServers)
   else
